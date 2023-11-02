@@ -14,7 +14,7 @@ public class FSTracker {
         try {
             ServerSocket serverSocket = new ServerSocket(Macros.DEFAULT_PORT_TCP);
 
-            System.out.println("Servidor ativo em " + Macros.DEFAULT_SERVER_IP + " na porta " + Macros.DEFAULT_PORT_TCP);
+            System.out.println("Servidor ativo em " + "..." + " na porta " + Macros.DEFAULT_PORT_TCP);
 
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -38,34 +38,17 @@ public class FSTracker {
         public void run() {
             try {
                 InputStream input = socket.getInputStream();
-                OutputStream output = socket.getOutputStream();
+                BufferedReader readerIn = new BufferedReader(new InputStreamReader(input));
+                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
 
-                Thread receiveThread = new Thread(new ReceiveThread(input));
-                receiveThread.start();
-
-                Thread sendThread = new Thread(new SendThread(output));
-                sendThread.start();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    static class ReceiveThread implements Runnable {
-        private InputStream input;
-
-        public ReceiveThread(InputStream input) {
-            this.input = input;
-        }
-
-        @Override
-        public void run() {
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
                 while (true) {
-                    String message = reader.readLine();
-                    // tratar a mensagem recebida!
+                    String message = readerIn.readLine();
+                    System.out.println("FSTracker received: " + message);
+
+                    System.out.print("FSTracker message: ");
+                    String response = "fafe";
+                    writer.println(response);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -73,20 +56,5 @@ public class FSTracker {
         }
     }
 
-    static class SendThread implements Runnable {
-        private OutputStream output;
-
-        public SendThread(OutputStream output) {
-            this.output = output;
-        }
-
-        @Override
-        public void run() {
-            PrintWriter writer = new PrintWriter(output, true);
-            while (true) {
-                writer.println();
-                // imprementar logistica do output.
-            }
-        }
-    }
+    
 }

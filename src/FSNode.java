@@ -11,23 +11,21 @@ public class FSNode {
     public static void main(String[] args) {
         try {
             // Conexão TCP
-            Socket socket = new Socket(Macros.DEFAULT_SERVER_IP, Macros.DEFAULT_PORT_TCP);
+            Socket socket = new Socket("localhost", Macros.DEFAULT_PORT_TCP);
 
-            Thread receiveTCPThread = new Thread(new ReceiveTCPThread(socket));
-            receiveTCPThread.start();
-
-            Thread sendTCPThread = new Thread(new SendTCPThread(socket));
-            sendTCPThread.start();
+            Thread tcpThread = new Thread(new TCPThread(socket));
+            tcpThread.start();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    
     }
-
-    static class ReceiveTCPThread implements Runnable {
+    
+    static class TCPThread implements Runnable {
         private Socket socket;
 
-        public ReceiveTCPThread(Socket socket) {
+        public TCPThread(Socket socket) {
             this.socket = socket;
         }
 
@@ -36,37 +34,24 @@ public class FSNode {
             try {
                 InputStream input = socket.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                while (true) {
-                    String message = reader.readLine();
-                    System.out.println("FSNode received (TCP): " + message);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
-    static class SendTCPThread implements Runnable {
-        private Socket socket;
-
-        public SendTCPThread(Socket socket) {
-            this.socket = socket;
-        }
-
-        @Override
-        public void run() {
-            try {
                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+                
                 while (true) {
+                    // Ler mensagem do console
                     System.out.print("FSNode message (TCP): ");
                     String message = consoleReader.readLine();
                     writer.println(message);
+
+                    // Receber mensagens do socket
+                    String receivedMessage = reader.readLine();
+                    System.out.println("FSNode received (TCP): " + receivedMessage);
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-
 }

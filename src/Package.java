@@ -1,6 +1,8 @@
 package P2PFileShare_CC.src;
 
-public class Package {
+import java.io.Serializable;
+
+public class Package implements Serializable {
 
     enum Type {
         REQUEST,

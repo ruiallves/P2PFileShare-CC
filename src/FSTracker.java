@@ -47,8 +47,9 @@ public class FSTracker {
                     System.out.println("FSTracker received: " + message);
 
                     System.out.print("FSTracker message: ");
-                    String response = "fafe";
-                    writer.println(response);
+                    Package test = new Package("value1", Package.Query.GET, Package.Type.REQUEST,"wtv",1,null);
+                    // String response = "fafe";
+                    writer.print(test.toString());
                 }
             } catch (IOException e) {
                 e.printStackTrace();

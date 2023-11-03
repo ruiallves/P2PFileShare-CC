@@ -49,7 +49,7 @@ public class FSNode {
                     System.out.println("FSNode received (TCP): " + receivedMessage);
 
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

@@ -32,20 +32,19 @@ public class FSNode {
         @Override
         public void run() {
             try {
-                InputStream input = socket.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
                 
                 while (true) {
                     // Ler mensagem do console
-                    System.out.print("FSNode message (TCP): ");
-                    String message = consoleReader.readLine();
-                    writer.println(message);
+                    Package test = new Package(Package.Type.REQUEST, Package.Query.REGISTER, "Node1", null);
+                    System.out.println("FSNode message (TCP): " + test.toString());
+                    out.println(test.toString());
 
                     // Receber mensagens do socket
-                    String receivedMessage = reader.readLine();
+                    String receivedMessage = in.readLine();
                     System.out.println("FSNode received (TCP): " + receivedMessage);
 
                 }

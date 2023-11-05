@@ -37,19 +37,19 @@ public class FSTracker {
         @Override
         public void run() {
             try {
-                InputStream input = socket.getInputStream();
-                BufferedReader readerIn = new BufferedReader(new InputStreamReader(input));
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
 
                 while (true) {
-                    String message = readerIn.readLine();
+                    System.out.println("Waiting for response...");
+                    String message = in.readLine();
                     System.out.println("FSTracker received: " + message);
 
-                    System.out.print("FSTracker message: ");
-                    Package test = new Package("value1", Package.Query.GET, Package.Type.REQUEST,"wtv",1,null);
-                    // String response = "fafe";
-                    writer.print(test.toString());
+
+                    Package returnPackage = new Package(Package.Type.RESPONSE, Package.Query.REGISTER, "Node1", "Accepted");
+                    out.println(returnPackage.toString());
+                    System.out.println("FSTracker message reply: " + returnPackage.toString());
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -1,6 +1,7 @@
 package P2PFileShare_CC.src;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class Package implements Serializable {
 
@@ -15,20 +16,22 @@ public class Package implements Serializable {
         UPDATE
     }
 
-    private String value;            
-    private Query query;
+    private String id;
     private Type type;
+    private Query query;
+    private String value;
     private String content;
-    private int id;
-    private Byte[] payload = new Byte[256];
 
-    public Package(String value, Query query, Type type, String content, int id, Byte[] payload) {
-        this.value = value;
-        this.query = query;
+    public Package(Type type, Query query, String value, String content) {
+        this.id = UUID.randomUUID().toString();
         this.type = type;
+        this.query = query;
+        this.value = value;
         this.content = content;
-        this.id = id;
-        this.payload = payload;
+    }
+
+    public Package(String pPackageAsString) {
+        //todo: Ler a string conforme o formato criado no método toString
     }
 
     public String getValue() {
@@ -63,20 +66,20 @@ public class Package implements Serializable {
         this.content = content;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
 
-    public Byte[] getPayload() {
-        return payload;
-    }
+        sb.append("Package-" + id + ":");
+        sb.append(type.toString() + ";");
+        sb.append(query.toString() + ";");
+        sb.append(value.toString() + ";");
+        sb.append(content);
 
-    public void setPayload(Byte[] payload) {
-        this.payload= payload;
+        return sb.toString();
     }
 
 }

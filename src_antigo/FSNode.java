@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class FSNodef {
+public class FSNode {
     public static void main(String[] args) {
         try {
             // Conexão TCP

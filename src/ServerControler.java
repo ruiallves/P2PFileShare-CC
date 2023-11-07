@@ -15,6 +15,10 @@ public class ServerControler {
         datalayer = new DataLayer();
     }
 
+    public DataLayer getDatalayer() {
+        return datalayer;
+    }
+
     public boolean register(String ip, int port, String directory) {
         NodeInfo node = new NodeInfo(ip, port, directory);
         return datalayer.RegisterNode(node);

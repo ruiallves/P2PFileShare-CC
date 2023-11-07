@@ -15,6 +15,16 @@ public class NodeInfo {
         this.folderName = folderName;
     }
 
+    public NodeInfo(String sToNodeInfo){
+        String[] parts = sToNodeInfo.split(",");
+        if (parts.length == 4) {
+            this.id = UUID.randomUUID().toString(); // REVER ISTO %TODO
+            this.ip = parts[1];
+            this.port = Integer.parseInt(parts[2]);
+            this.folderName = parts[3];
+        }
+    }
+
     public String getId() {
         return id;
     }
@@ -30,4 +40,10 @@ public class NodeInfo {
     public String getFolderName() {
         return folderName;
     }
+
+    @Override
+    public String toString() {
+        return getId() + "," + getIp() + "," + port + "," + getFolderName();
+    }
+
 }

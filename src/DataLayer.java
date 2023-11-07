@@ -4,6 +4,8 @@ import org.javatuples.Pair;
 
 import java.util.*;
 
+import static java.awt.SystemColor.info;
+
 public class DataLayer {
 
     private HashMap<String , NodeInfo > nodes; // key : (ip:port)
@@ -54,6 +56,21 @@ public class DataLayer {
             String key = ip + ":" + port;
             NodeInfo node = nodes.get(key);
             return node.getId();
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
+    public NodeInfo getNodeInfo(String id) {
+        try {
+            for (Map.Entry<String, NodeInfo> entry : nodes.entrySet()) {
+                var node = entry.getValue();
+                if (node.getId().matches(id)) {
+                    return node;
+                }
+            }
+            return null;
         }
         catch (Exception e) {
             return null;

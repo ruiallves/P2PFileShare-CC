@@ -7,6 +7,8 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public class ServerControler {
 
     private DataLayer datalayer;
@@ -28,12 +30,16 @@ public class ServerControler {
         var out = datalayer.getFileLocation(file_name);
         List<Triplet<String,Integer,Integer>> locations = new ArrayList<>();
 
-        for (:
-             ) {  //foreach que percorra o out e atraves do id devolva a porta e ip atraves do node info
-                  // criar triplo com ip, port, chunk
-                  // colocar no locations
+        for (var entry : out) {
+            var info = datalayer.getNodeInfo(entry.getValue0());
+            var ipf = info.getIp();
+            var portf = info.getPort();
+            Triplet<String, Integer, Integer> output = new Triplet<>(ipf, portf, entry.getValue1());
+            locations.add(output);
+        }
+        return locations;
         }
 
-        return locations;
+
 
     }

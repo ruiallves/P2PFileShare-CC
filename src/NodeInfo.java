@@ -1,49 +1,33 @@
 package P2PFileShare_CC.src;
 
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.List;
+import java.util.UUID;
 
 public class NodeInfo {
+    private String id;
+    private String ip;
+    private int port;
+    private String folderName;
 
-    private HashMap<String, List<Integer>> fileblock;
-    private InetAddress serverIP;
-    private int serverPort;
-
-    public NodeInfo(HashMap<String, List<Integer>> fileblock, InetAddress serverIp, int serverPort) {
-        this.fileblock = fileblock;
-        this.serverIP = serverIp;
-        this.serverPort = serverPort;
+    public void NodeInfo(String ip, int port, String folderName) {
+        this.id = UUID.randomUUID().toString();
+        this.ip = ip;
+        this.port = port;
+        this.folderName = folderName;
     }
 
-    public List<Integer> getBlocks(String fileName) {
-        if (fileblock.containsKey(fileName)) {
-            return fileblock.get(fileName);
-        }
-        return null;
+    public String getId() {
+        return id;
     }
 
-    public InetAddress getServerIP() {
-        return serverIP;
-    }
-
-    public void setServerIP(InetAddress serverIP) {
-        this.serverIP = serverIP;
+    public String getIp() {
+        return ip;
     }
 
     public int getPort() {
-        return serverPort;
+        return port;
     }
 
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
-    }
-
-    public HashMap<String, List<Integer>> getFiles() {
-        return fileblock;
-    }
-
-    public void setFiles(HashMap<String, List<Integer>> files) {
-        this.fileblock = files;
+    public String getFolderName() {
+        return folderName;
     }
 }

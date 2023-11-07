@@ -46,10 +46,11 @@ public class FSTracker {
                     String message = in.readLine();
                     System.out.println("FSTracker received: " + message);
 
+                    Package parsedPackage = new Package(message);
 
-                    Package returnPackage = new Package(Package.Type.RESPONSE, Package.Query.REGISTER, "Node1", "Accepted");
-                    out.println(returnPackage.toString());
-                    System.out.println("FSTracker message reply: " + returnPackage.toString());
+                    //Package returnPackage = new Package(Package.Type.RESPONSE, Package.Query.REGISTER, "Node1", "Accepted");
+                    //out.println(returnPackage.toString());
+                    //System.out.println("FSTracker message reply: " + returnPackage.toString());
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -31,7 +31,14 @@ public class Package implements Serializable {
     }
 
     public Package(String pPackageAsString) {
-        //todo: Ler a string conforme o formato criado no método toString
+        String[] parts = pPackageAsString.split(":|;");
+        if (parts.length == 5) {
+            this.id = parts[0].substring("Package-".length());
+            this.type = Type.valueOf(parts[1]);
+            this.query = Query.valueOf(parts[2]);
+            this.value = parts[3];
+            this.content = parts[4];
+        }
     }
 
     public String getValue() {

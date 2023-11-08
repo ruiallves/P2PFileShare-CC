@@ -54,12 +54,16 @@ public class FSTracker {
                     String message = in.readLine();
                     pPackage = new Package(message);
                     //System.out.println("FSTracker received: " + message);
+                    var returnPackage = packageManager.manager(pPackage);
+                    out.println(pPackage.toString());
 
+
+                       /*
                     if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.REGISTER)){
                         //estas linhas comentadas são testes
                         //NodeInfo node = new NodeInfo(pPackage.getContent());
                         //System.out.println(packageManager.getServerControler().getDatalayer().getNodeInfo(node.getId()));;
-                        //data.RegisterNode(new NodeInfo(pPackage.getContent()));
+                        data.RegisterNode(new NodeInfo(pPackage.getContent()));
                         //System.out.println(data.getNodeInfo(node.getId()));
 
                         pPackage.setType(Package.Type.RESPONSE);
@@ -77,7 +81,7 @@ public class FSTracker {
                         //pPackage.setType(Package.Type.RESPONSE);
                         //pPackage.setContent("FSNode registado com sucesso!");
                         out.println(pPackage.toString());
-                    }
+                    }*/
 
                 }
             } catch (IOException e) {

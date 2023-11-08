@@ -16,11 +16,11 @@ public class FSTracker {
             ServerSocket serverSocket = new ServerSocket(9090);
             System.out.println("Servidor ativo em " + "..." + " na porta " + 9090);
 
-            ServerControler serverControler = new ServerControler();
+            PacketManager packageManager = new PacketManager();
 
             while (true) {
                 Socket socket = serverSocket.accept();
-                Thread thread = new Thread(new TCPThread(socket,serverControler));
+                Thread thread = new Thread(new TCPThread(socket, packageManager));
                 thread.start();
             }
 
@@ -31,10 +31,12 @@ public class FSTracker {
 
     static class TCPThread implements Runnable {
         private Socket socket;
-        private ServerControler serverControler;
-        public TCPThread(Socket socket, ServerControler serverControler) {
+        private Package pPackage;
+        private PacketManager packageManager;
+        public TCPThread(Socket socket, PacketManager packageManager) {
             this.socket = socket;
-            this.serverControler = serverControler;
+            this.packageManager = packageManager;
+
         }
 
         @Override
@@ -43,21 +45,16 @@ public class FSTracker {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+                Package pPackage = null;
 
                 while (true) {
-                    //System.out.println("Waiting for response...");
+                    System.out.println("Waiting for response...");
                     String message = in.readLine();
-                    //System.out.println("FSTracker received: " + message);
-                    Package parsedPackage = new Package(message);
-
-                    if(Package.Query.REGISTER.equals(parsedPackage.getQuery())){
-                        NodeInfo node = new NodeInfo(parsedPackage.getContent());
-                        serverControler.register(node.getIp(),node.getPort(),node.getFolderName());
-                        System.out.println("Node com o ip: " + node.getIp() + " registado com sucesso!");
-                    }
-
+                    pPackage = new Package(message);
+                    System.out.println("FSTracker received: " + message);
 
                     //Package returnPackage = new Package(Package.Type.RESPONSE, Package.Query.REGISTER, "Node1", "Accepted");
+
                     //out.println(returnPackage.toString());
                     //System.out.println("FSTracker message reply: " + returnPackage.toString());
                 }

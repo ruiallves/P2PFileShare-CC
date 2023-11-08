@@ -15,6 +15,14 @@ public class NodeInfo {
         this.folderName = folderName;
     }
 
+    public  NodeInfo(String id,String ip, int port, String folderName) {
+        this.id = id;
+        this.ip = ip;
+        this.port = port;
+        this.folderName = folderName;
+    }
+
+
     public NodeInfo(String sToNodeInfo){
         String[] parts = sToNodeInfo.split(",");
         if (parts.length == 4) {

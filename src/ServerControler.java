@@ -29,7 +29,7 @@ public class ServerControler {
         return datalayer.UpdateNode(id, new_files_chunks);
     }
 
-    public List<Triplet<String, Integer, Integer>> get(String ip, int port, String file_name) {
+    public List<Triplet<String, Integer, Integer>> get(String file_name) {
         var out = datalayer.getFileLocation(file_name);
         List<Triplet<String, Integer, Integer>> locations = new ArrayList<>();
 

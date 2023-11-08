@@ -68,15 +68,15 @@ public class FSTracker {
                     }
 
                     else if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.UPDATE)){
-                        pPackage.setType(Package.Type.RESPONSE);
+                        //pPackage.setType(Package.Type.RESPONSE);
                         //pPackage.setContent("FSNode registado com sucesso!");
-                        out.println(pPackage.toString());
+                        //out.println(pPackage.toString());
                     }
 
                     else if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.GET)){
                         //pPackage.setType(Package.Type.RESPONSE);
                         //pPackage.setContent("FSNode registado com sucesso!");
-                        out.println(pPackage.toString());
+                        //out.println(pPackage.toString());
                     }
 
                 }

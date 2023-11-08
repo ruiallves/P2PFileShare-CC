@@ -2,6 +2,7 @@ package P2PFileShare_CC.src;
 
 import org.javatuples.Pair;
 
+import java.io.File;
 import java.util.*;
 
 import static java.awt.SystemColor.info;
@@ -17,34 +18,29 @@ public class DataLayer {
         files = new HashMap<>();
     }
 
+    public HashMap<String, List <Pair <String, Integer>>> getFiles(){
+        return this.files;
+    }
+
     public boolean RegisterNode(NodeInfo pNodeInfo) {
         try {
             String key = pNodeInfo.getIp() + ":" + pNodeInfo.getPort();
             nodes.put(key, pNodeInfo);
             return true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
-
     }
 
     public boolean UpdateNode(String id, List<Pair<String,Integer>> pFiles) { // (file_name, chunk)
         try {
-            for (var entry : files.entrySet()) {
-                for (var pair : entry.getValue()) {
-                    if (pair.getValue0().matches(id)) {
-                        entry.getValue().remove(pair); // funcionamento??
-                    }
+            for(Map.Entry<String, List<Pair<String, Integer>>> entry : files.entrySet()){
+                List<Pair<String, Integer>> value = entry.getValue();
+
+                for (Pair<String, Integer> pair : value) {
+
                 }
             }
-            
-            for (Pair<String,Integer> chunklocation : pFiles){
-                List<Pair<String, Integer>> file = files.get(chunklocation.getValue0());
-                var mapentry =  files.get(chunklocation.getValue0());
-                mapentry.add(new Pair<>(id, chunklocation.getValue1()));
-            }
-            return true;
 
         } catch (Exception e) {
             return false;

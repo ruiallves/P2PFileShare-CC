@@ -58,14 +58,20 @@ public class FSNode {
                         Package register = new Package(Package.Type.REQUEST, Package.Query.REGISTER, "Node", node.toString());
                         out.println(register.toString());
                         register_controller = 0;
-                    } else if (reader.toUpperCase().equals("UPDATE")) {
+                    }
+
+                    else if (reader.toUpperCase().equals("UPDATE") && register_controller == 0) {
                         Package update = new Package(Package.Type.REQUEST, Package.Query.UPDATE, "Node", node.getFolderName());
                         out.println(update.toString());
-                    } else if (words[0].toUpperCase().equals("GET")) {
+                    }
+
+                    else if (words[0].toUpperCase().equals("GET") && register_controller == 0) {
                         Package get = new Package(Package.Type.REQUEST, Package.Query.GET, "Node", words[1]);
                         out.println(get.toString());
-                    } else {
-                        System.out.println("ARGUMENTO INVALIDO.");
+                    }
+
+                    else {
+                        System.out.println("ARGUMENTO INVALIDO."); // %todo -> isto tem de mandar algo e receber algo, caso contrario não conseguimos escrever mais comandos
                     }
 
                     // Receber mensagens do socket

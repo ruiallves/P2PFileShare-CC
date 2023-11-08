@@ -1,14 +1,31 @@
 package P2PFileShare_CC.src;
 
-public class PacketManager {
-    private ServerControler svcont;
+import org.javatuples.Pair;
 
-    public PacketManager() {
-        svcont = new ServerControler();
+import javax.xml.crypto.Data;
+import java.util.List;
+
+import static P2PFileShare_CC.src.FileUtil.obterListaDeArquivosNaPasta;
+
+public class PacketManager {
+    //private ServerControler svcont;
+
+    //public PacketManager() {
+        //svcont = new ServerControler();
+    //}
+
+    //public ServerControler getServerControler(){
+        //return this.svcont;
+    //}
+
+    private DataLayer dataLayer;
+
+    public PacketManager(){
+        dataLayer = new DataLayer();
     }
 
-    public ServerControler getServerControler(){
-        return this.svcont;
+    public DataLayer getDataLayer(){
+        return this.dataLayer;
     }
 
     public Boolean manager(Package pPackage){
@@ -16,19 +33,22 @@ public class PacketManager {
         if(pPackage.getType().equals(Package.Type.REQUEST)){
             if(Package.Query.REGISTER.equals(pPackage.getQuery())){
                 NodeInfo node = new NodeInfo(pPackage.getContent());
-                svcont.register(node.getIp(),node.getPort(),node.getFolderName());
+                dataLayer.RegisterNode(node);
                 return true;
             }
 
             else if (Package.Query.UPDATE.equals(pPackage.getQuery())){
                 NodeInfo node = new NodeInfo(pPackage.getContent());
-                //svcont.update(node.getIp(),node.getPort(), node.getFolderName());
+                String filename = pPackage.getContent();
+                //System.out.println(filename);
+                List<Pair<String, Integer>> fileChunks = obterListaDeArquivosNaPasta(filename);
+                dataLayer.UpdateNode(node.getId(),fileChunks);
                 return true;
             }
 
             else if (Package.Query.GET.equals(pPackage.getQuery())) {
                 Package node = new Package(pPackage.getContent());
-                var locations = svcont.get(node.getValue());
+                //var locations = svcont.get(node.getValue());
                 return true;
             }
         }
@@ -47,7 +67,7 @@ public class PacketManager {
 
             else if (Package.Query.GET.equals(pPackage.getQuery())) {
                 Package node = new Package(pPackage.getContent());
-                var locations = svcont.get(node.getValue());
+                //var locations = svcont.get(node.getValue());
                 return true;
             }
         }

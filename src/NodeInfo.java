@@ -1,49 +1,57 @@
 package P2PFileShare_CC.src;
 
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.List;
+import java.util.UUID;
 
 public class NodeInfo {
+    private String id;
+    private String ip;
+    private int port;
+    private String folderName;
 
-    private HashMap<String, List<Integer>> fileblock;
-    private InetAddress serverIP;
-    private int serverPort;
-
-    public NodeInfo(HashMap<String, List<Integer>> fileblock, InetAddress serverIp, int serverPort) {
-        this.fileblock = fileblock;
-        this.serverIP = serverIp;
-        this.serverPort = serverPort;
+    public  NodeInfo(String ip, int port, String folderName) {
+        this.id = UUID.randomUUID().toString();
+        this.ip = ip;
+        this.port = port;
+        this.folderName = folderName;
     }
 
-    public List<Integer> getBlocks(String fileName) {
-        if (fileblock.containsKey(fileName)) {
-            return fileblock.get(fileName);
+    public  NodeInfo(String id,String ip, int port, String folderName) {
+        this.id = id;
+        this.ip = ip;
+        this.port = port;
+        this.folderName = folderName;
+    }
+
+
+    public NodeInfo(String sToNodeInfo){
+        String[] parts = sToNodeInfo.split(",");
+        if (parts.length == 4) {
+            this.id = parts[0];
+            this.ip = parts[1];
+            this.port = Integer.parseInt(parts[2]);
+            this.folderName = parts[3];
         }
-        return null;
     }
 
-    public InetAddress getServerIP() {
-        return serverIP;
+    public String getId() {
+        return id;
     }
 
-    public void setServerIP(InetAddress serverIP) {
-        this.serverIP = serverIP;
+    public String getIp() {
+        return ip;
     }
 
     public int getPort() {
-        return serverPort;
+        return port;
     }
 
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
+    public String getFolderName() {
+        return folderName;
     }
 
-    public HashMap<String, List<Integer>> getFiles() {
-        return fileblock;
+    @Override
+    public String toString() {
+        return getId() + "," + getIp() + "," + port + "," + getFolderName();
     }
 
-    public void setFiles(HashMap<String, List<Integer>> files) {
-        this.fileblock = files;
-    }
 }

@@ -31,7 +31,7 @@ public class Package implements Serializable {
     }
 
     public Package(String pPackageAsString) {
-        String[] parts = pPackageAsString.split(": | ;");
+        String[] parts = pPackageAsString.split(":|;");
         if (parts.length == 5) {
             this.id = parts[0].substring("Package-".length());
             this.type = Type.valueOf(parts[1]);

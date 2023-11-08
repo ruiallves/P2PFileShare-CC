@@ -13,7 +13,9 @@ public class FSNode {
             NodeInfo node = new NodeInfo(args[2],Integer.parseInt(args[3]),args[1]);
             Socket socket = new Socket(node.getIp(), node.getPort());
 
-            Thread tcpThread = new Thread(new TCPThread(socket,node));
+            PacketManager packageManager = new PacketManager();
+
+            Thread tcpThread = new Thread(new TCPThread(socket,node,packageManager));
             tcpThread.start();
 
         } catch (IOException e) {
@@ -21,45 +23,61 @@ public class FSNode {
         }
     
     }
-    
+
     static class TCPThread implements Runnable {
         private Socket socket;
         private NodeInfo node;
 
+        private PacketManager packageManager;
 
-        public TCPThread(Socket socket, NodeInfo node) {
+        public TCPThread(Socket socket, NodeInfo node, PacketManager packageManager) {
             this.socket = socket;
             this.node = node;
+            this.packageManager = packageManager;
         }
+
         @Override
         public void run() {
             try {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
                 BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-                
+
+                int register_controller = 1;
                 while (true) {
-                    // Ler mensagem do console
-                    //Package test = new Package(Package.Type.REQUEST, Package.Query.REGISTER, "Node1", node.toString());
-                    //System.out.println("FSNode message (TCP): " + test.toString());
-                    //out.println(test.toString());
-
                     String reader = consoleReader.readLine();
+                    String[] words = reader.split(" ");
 
-                    if(reader.toUpperCase().equals("REGISTER")){
-                        Package register = new Package(Package.Type.REQUEST, Package.Query.REGISTER, "Node1", node.toString()); // ESCREVER APENAS "REGISTER" NO TERMINAL PARA REGISTAR O NODO
+                    //VERIFICAR SE O NODE JÁ ESTÁ REGISTADO ATRAVES DO REGISTER_CONTROLLER
+                    if(reader.toUpperCase().equals("REGISTER") && register_controller == 0){
+                        System.out.println("NODE JÁ REGISTADO!");
+                        continue;
+                    }
+
+                    if (reader.toUpperCase().equals("REGISTER") && register_controller == 1) {
+                        Package register = new Package(Package.Type.REQUEST, Package.Query.REGISTER, "Node", node.toString());
                         out.println(register.toString());
+                        register_controller = 0;
+                    } else if (reader.toUpperCase().equals("UPDATE")) {
+                        Package update = new Package(Package.Type.REQUEST, Package.Query.UPDATE, "Node", node.getFolderName());
+                        out.println(update.toString());
+                    } else if (words[0].toUpperCase().equals("GET")) {
+                        Package get = new Package(Package.Type.REQUEST, Package.Query.GET, "Node", words[1]);
+                        out.println(get.toString());
+                    } else {
+                        System.out.println("ARGUMENTO INVALIDO.");
                     }
 
                     // Receber mensagens do socket
                     String receivedMessage = in.readLine();
-                    System.out.println("FSNode received (TCP): " + receivedMessage);
+                    Package pPackage = new Package(receivedMessage);
 
+                    packageManager.manager(pPackage);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
 }

@@ -26,7 +26,7 @@ public class NodeInfo {
     public NodeInfo(String sToNodeInfo){
         String[] parts = sToNodeInfo.split(",");
         if (parts.length == 4) {
-            this.id = UUID.randomUUID().toString(); // REVER ISTO %TODO
+            this.id = parts[0];
             this.ip = parts[1];
             this.port = Integer.parseInt(parts[2]);
             this.folderName = parts[3];

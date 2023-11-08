@@ -47,16 +47,38 @@ public class FSTracker {
                 BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
                 Package pPackage = null;
 
+                DataLayer data = new DataLayer();
+
                 while (true) {
                     System.out.println("Waiting for response...");
                     String message = in.readLine();
                     pPackage = new Package(message);
-                    System.out.println("FSTracker received: " + message);
+                    //System.out.println("FSTracker received: " + message);
 
-                    //Package returnPackage = new Package(Package.Type.RESPONSE, Package.Query.REGISTER, "Node1", "Accepted");
+                    if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.REGISTER)){
+                        //estas linhas comentadas são testes
+                        //NodeInfo node = new NodeInfo(pPackage.getContent());
+                        //System.out.println(packageManager.getServerControler().getDatalayer().getNodeInfo(node.getId()));;
+                        //data.RegisterNode(new NodeInfo(pPackage.getContent()));
+                        //System.out.println(data.getNodeInfo(node.getId()));
 
-                    //out.println(returnPackage.toString());
-                    //System.out.println("FSTracker message reply: " + returnPackage.toString());
+                        pPackage.setType(Package.Type.RESPONSE);
+                        pPackage.setContent("FSNode registado com sucesso!");
+                        out.println(pPackage.toString());
+                    }
+
+                    else if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.UPDATE)){
+                        pPackage.setType(Package.Type.RESPONSE);
+                        //pPackage.setContent("FSNode registado com sucesso!");
+                        out.println(pPackage.toString());
+                    }
+
+                    else if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.GET)){
+                        //pPackage.setType(Package.Type.RESPONSE);
+                        //pPackage.setContent("FSNode registado com sucesso!");
+                        out.println(pPackage.toString());
+                    }
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();

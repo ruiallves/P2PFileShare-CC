@@ -7,28 +7,51 @@ public class PacketManager {
         svcont = new ServerControler();
     }
 
+    public ServerControler getServerControler(){
+        return this.svcont;
+    }
+
     public Boolean manager(Package pPackage){
 
-        if(Package.Query.REGISTER.equals(pPackage.getQuery())){
-            NodeInfo node = new NodeInfo(pPackage.getContent());
-            svcont.register(node.getIp(),node.getPort(),node.getFolderName());
-            System.out.println("Node com o ip: " + node.getIp() + " registado com sucesso!");
-            return false;
+        if(pPackage.getType().equals(Package.Type.REQUEST)){
+            if(Package.Query.REGISTER.equals(pPackage.getQuery())){
+                NodeInfo node = new NodeInfo(pPackage.getContent());
+                svcont.register(node.getIp(),node.getPort(),node.getFolderName());
+                return true;
+            }
+
+            else if (Package.Query.UPDATE.equals(pPackage.getQuery())){
+                NodeInfo node = new NodeInfo(pPackage.getContent());
+                //svcont.update(node.getIp(),node.getPort(), node.getFolderName());
+                return true;
+            }
+
+            else if (Package.Query.GET.equals(pPackage.getQuery())) {
+                Package node = new Package(pPackage.getContent());
+                var locations = svcont.get(node.getValue());
+                return true;
+            }
         }
 
-        else if (Package.Query.UPDATE.equals(pPackage.getQuery())){
-            NodeInfo node = new NodeInfo(pPackage.getContent());
-            svcont.register(node.getIp(),node.getPort(), node.getFolderName());
-            System.out.println("Node com o ip: " + node.getIp() + " atualizado com sucesso!");
-            return true;
+        if(pPackage.getType().equals(Package.Type.RESPONSE)){
+            if(Package.Query.REGISTER.equals(pPackage.getQuery())){
+                System.out.println(pPackage.getContent());
+                return true;
+            }
+
+            else if (Package.Query.UPDATE.equals(pPackage.getQuery())){
+                NodeInfo node = new NodeInfo(pPackage.getContent());
+                //svcont.update(node.getIp(),node.getPort(), node.getFolderName());
+                return true;
+            }
+
+            else if (Package.Query.GET.equals(pPackage.getQuery())) {
+                Package node = new Package(pPackage.getContent());
+                var locations = svcont.get(node.getValue());
+                return true;
+            }
         }
 
-        else if (Package.Query.GET.equals(pPackage.getQuery())){
-            Package node = new Package(pPackage.getContent());
-            var locations = svcont.get(node.getValue());
-            System.out.println("File com nome " + node.getValue() + " encontrando em: \n" + locations);
-            return true;
-        }
         return false;
     }
 

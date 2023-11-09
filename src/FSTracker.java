@@ -13,14 +13,14 @@ import java.net.Socket;
 public class FSTracker {
     public static void main(String[] args) {
         try {
-            ServerSocket serverSocket = new ServerSocket(9090);
-            System.out.println("Servidor ativo em " + "..." + " na porta " + 9090);
+            ServerSocket serverSocket = new ServerSocket(9090); // cria o socket para comunicar com o fstracker
+            System.out.println("Servidor ativo na porta " + 9090);
 
             PacketManager packageManager = new PacketManager();
 
             while (true) {
-                Socket socket = serverSocket.accept();
-                Thread thread = new Thread(new TCPThread(socket, packageManager));
+                Socket socket = serverSocket.accept(); //aceita a conexão
+                Thread thread = new Thread(new TCPThread(socket, packageManager)); //cria uma thread para lidar com ela
                 thread.start();
             }
 
@@ -42,16 +42,15 @@ public class FSTracker {
         @Override
         public void run() {
             try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())); // leitor para comunicar com o node
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true); // escritor para comunicar com o node
                 Package pPackage = null;
 
                 while (true) {
                     System.out.println("Waiting for response...");
-                    String message = in.readLine();
-                    String[] words = message.split(" ");
-                    pPackage = new Package(message);
+                    String message = in.readLine(); //lê o que vem do node
+                    String[] words = message.split(" "); //split da mensagem para ser usado no QUERY.GET
+                    pPackage = new Package(message); //criamos o package com a mensagem
 
                     if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.REGISTER)){
                         pPackage.setType(Package.Type.RESPONSE);

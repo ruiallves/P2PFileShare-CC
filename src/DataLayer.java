@@ -10,7 +10,7 @@ import static java.awt.SystemColor.info;
 public class DataLayer {
 
     private HashMap<String , NodeInfo > nodes; // key : (ip:port)
-    private HashMap<String, List<Pair<String, Integer>>> files; // key : node_id
+    private HashMap<String, List<Pair<String, Integer>>> files; // key : filename
 
     public DataLayer()
     {
@@ -32,24 +32,48 @@ public class DataLayer {
         }
     }
 
-    public boolean UpdateNode(String id, List<Pair<String, Integer>> pFiles) {
+    // C
+    public boolean UpdateNode(String filename, List<Pair<String, Integer>> pFiles) {
         try {
-            if (files.containsKey(id)) {
-                List<Pair<String, Integer>> existingFiles = files.get(id);
+            if (files.containsKey(filename)) {
+                List<Pair<String, Integer>> existingFiles = files.get(filename);
 
                 for (Pair<String, Integer> pFile : pFiles) {
-                    if (!existingFiles.contains(pFile)) {
-                        existingFiles.add(pFile);
+                    String nodeId = pFile.getValue0();
+                    int blockNumber = pFile.getValue1();
+
+                    boolean found = false;
+                    for (Pair<String, Integer> existingFile : existingFiles) {
+                        if (existingFile.getValue0().equals(nodeId)) {
+                            // Atualizar o número do bloco
+                            existingFile = new Pair<>(nodeId, blockNumber);
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        // Adicionar o novo par
+                        existingFiles.add(new Pair<>(nodeId, blockNumber));
                     }
                 }
+
+                // Atualizar o HashMap
+                files.put(filename, existingFiles);
             } else {
-                files.put(id, new ArrayList<>(pFiles));
+                // Adicionar um novo arquivo ao HashMap
+                files.put(filename, pFiles);
             }
+
             return true;
         } catch (Exception e) {
             return false;
         }
     }
+
+
+
+
 
 
     public String getNodeID(String ip, int port) {
@@ -82,12 +106,16 @@ public class DataLayer {
         List<String> nodesWithFile = new ArrayList<>();
 
         for (Map.Entry<String, List<Pair<String, Integer>>> entry : files.entrySet()) {
-            String nodeId = entry.getKey();
+            String filename = entry.getKey();
             List<Pair<String, Integer>> fileChunks = entry.getValue();
 
             for (Pair<String, Integer> fileChunk : fileChunks) {
-                String file = fileChunk.getValue0();
-                if (file.equals(fileName)) {
+                String nodeId = fileChunk.getValue0();
+
+                System.out.println(fileName);
+                System.out.println(filename);
+
+                if (filename.equals(fileName)) {
                     nodesWithFile.add(nodeId);
                     break;
                 }
@@ -137,23 +165,24 @@ public class DataLayer {
         }
     }
 
-    public void printFilesInfo() {
+    public void printFilesHashMap() {
         for (Map.Entry<String, List<Pair<String, Integer>>> entry : files.entrySet()) {
             String nodeId = entry.getKey();
-            List<Pair<String, Integer>> fileChunks = entry.getValue();
+            List<Pair<String, Integer>> fileList = entry.getValue();
 
-            System.out.println("Node ID: " + nodeId);
-            System.out.println("Files and Chunks:");
+            System.out.println("FILENAME: " + nodeId);
 
-            for (Pair<String, Integer> fileChunk : fileChunks) {
-                String fileName = fileChunk.getValue0();
-                int chunkNumber = fileChunk.getValue1();
+            for (Pair<String, Integer> file : fileList) {
+                String fileName = file.getValue0();
+                int chunkNumber = file.getValue1();
 
-                System.out.println("  File Name: " + fileName);
-                System.out.println("  Chunk Number: " + chunkNumber);
+                System.out.println("NODES: " + fileName + ", Chunk: " + chunkNumber);
             }
+
+            System.out.println();
         }
     }
+
 
 }
 

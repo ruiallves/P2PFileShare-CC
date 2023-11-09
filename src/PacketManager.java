@@ -5,6 +5,7 @@ import org.javatuples.Pair;
 import javax.xml.crypto.Data;
 import java.util.List;
 
+import static P2PFileShare_CC.src.FileUtil.getFilesInDirectory;
 import static P2PFileShare_CC.src.FileUtil.obterListaDeArquivosNaPasta;
 
 public class PacketManager {
@@ -39,9 +40,11 @@ public class PacketManager {
 
             else if (Package.Query.UPDATE.equals(pPackage.getQuery())){
                 NodeInfo node = new NodeInfo(pPackage.getValue());
-                String FolderName = pPackage.getContent();
-                List<Pair<String, Integer>> fileChunks = obterListaDeArquivosNaPasta(FolderName);
-                dataLayer.UpdateNode(node.getId(), fileChunks);
+                List<String> listaNomes = getFilesInDirectory(pPackage.getContent());
+                List<Pair<String, Integer>> files = obterListaDeArquivosNaPasta(pPackage.getContent(), node.getId());
+                for(String s : listaNomes) {
+                    dataLayer.UpdateNode(s, files);
+                }
                 return true;
             }
 

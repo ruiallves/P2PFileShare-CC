@@ -10,7 +10,7 @@ import java.net.Socket;
 public class FSNode {
     public static void main(String[] args) {
         try {
-            NodeInfo node = new NodeInfo(args[2],Integer.parseInt(args[3]),args[1]);
+            NodeInfo node = new NodeInfo(args[  2],Integer.parseInt(args[3]),args[1]);
             Socket socket = new Socket(node.getIp(), node.getPort());
 
             PacketManager packageManager = new PacketManager();
@@ -21,7 +21,7 @@ public class FSNode {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    
+
     }
 
     static class TCPThread implements Runnable {
@@ -55,26 +55,27 @@ public class FSNode {
                     }
 
                     if (reader.toUpperCase().equals("REGISTER") && register_controller == 1) {
-                        Package register = new Package(Package.Type.REQUEST, Package.Query.REGISTER, "Node", node.toString());
+                        Package register = new Package(Package.Type.REQUEST, Package.Query.REGISTER, node.toString(), node.toString());
                         out.println(register.toString());
                         register_controller = 0;
                     }
 
                     else if (reader.toUpperCase().equals("UPDATE") && register_controller == 0) {
-                        Package update = new Package(Package.Type.REQUEST, Package.Query.UPDATE, "Node", node.getFolderName());
+                        Package update = new Package(Package.Type.REQUEST, Package.Query.UPDATE, node.toString() , node.getFolderName());
                         out.println(update.toString());
                     }
 
                     else if (words[0].toUpperCase().equals("GET") && register_controller == 0) {
-                        Package get = new Package(Package.Type.REQUEST, Package.Query.GET, "Node", words[1]);
+                        Package get = new Package(Package.Type.REQUEST, Package.Query.GET, node.toString(), words[1]);
                         out.println(get.toString());
                     }
 
                     else {
                         System.out.println("ARGUMENTO INVALIDO."); // %todo -> isto tem de mandar algo e receber algo, caso contrario não conseguimos escrever mais comandos
+                        continue;
                     }
 
-                    // Receber mensagens do socket
+
                     String receivedMessage = in.readLine();
                     Package pPackage = new Package(receivedMessage);
 

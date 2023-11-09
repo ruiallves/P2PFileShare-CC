@@ -47,36 +47,28 @@ public class FSTracker {
                 BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
                 Package pPackage = null;
 
-                DataLayer data = new DataLayer();
-
                 while (true) {
                     System.out.println("Waiting for response...");
                     String message = in.readLine();
+                    String[] words = message.split(" ");
                     pPackage = new Package(message);
-                    //System.out.println("FSTracker received: " + message);
 
                     if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.REGISTER)){
-                        //estas linhas comentadas são testes
-                        //NodeInfo node = new NodeInfo(pPackage.getContent());
-                        //System.out.println(packageManager.getServerControler().getDatalayer().getNodeInfo(node.getId()));;
-                        //data.RegisterNode(new NodeInfo(pPackage.getContent()));
-                        //System.out.println(data.getNodeInfo(node.getId()));
-
                         pPackage.setType(Package.Type.RESPONSE);
                         pPackage.setContent("FSNode registado com sucesso!");
                         out.println(pPackage.toString());
                     }
 
                     else if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.UPDATE)){
-                        //pPackage.setType(Package.Type.RESPONSE);
-                        //pPackage.setContent("FSNode registado com sucesso!");
-                        //out.println(pPackage.toString());
+                        pPackage.setType(Package.Type.RESPONSE);
+                        pPackage.setContent("FSNode atualizado com sucesso!");
+                        out.println(pPackage.toString());
                     }
 
                     else if(packageManager.manager(pPackage) && pPackage.getQuery().equals(Package.Query.GET)){
-                        //pPackage.setType(Package.Type.RESPONSE);
-                        //pPackage.setContent("FSNode registado com sucesso!");
-                        //out.println(pPackage.toString());
+                        pPackage.setType(Package.Type.RESPONSE);
+                        pPackage.setContent(packageManager.getDataLayer().getNodeForFile(pPackage.getContent()));
+                        out.println(pPackage.toString());
                     }
 
                 }

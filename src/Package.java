@@ -81,12 +81,37 @@ public class Package implements Serializable {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Package-" + id + ":");
-        sb.append(type.toString() + ";");
-        sb.append(query.toString() + ";");
-        sb.append(value.toString() + ";");
-        sb.append(content);
+
+        // Verifique se 'type' é nulo antes de chamá-lo
+        if (type != null) {
+            sb.append(type.toString() + ";");
+        } else {
+            sb.append("null;");
+        }
+
+        // Verifique se 'query' é nulo antes de chamá-lo
+        if (query != null) {
+            sb.append(query.toString() + ";");
+        } else {
+            sb.append("null;");
+        }
+
+        // Verifique se 'value' é nulo antes de chamá-lo
+        if (value != null) {
+            sb.append(value.toString() + ";");
+        } else {
+            sb.append("null;");
+        }
+
+        // Verifique se 'content' é nulo antes de chamá-lo
+        if (content != null) {
+            sb.append(content);
+        } else {
+            sb.append("null");
+        }
 
         return sb.toString();
     }
+
 
 }

@@ -38,38 +38,27 @@ public class PacketManager {
             }
 
             else if (Package.Query.UPDATE.equals(pPackage.getQuery())){
-                NodeInfo node = new NodeInfo(pPackage.getContent());
-                String filename = pPackage.getContent();
-                //System.out.println(filename);
-                List<Pair<String, Integer>> fileChunks = obterListaDeArquivosNaPasta(filename);
-                dataLayer.UpdateNode(node.getId(),fileChunks);
+                NodeInfo node = new NodeInfo(pPackage.getValue());
+                String FolderName = pPackage.getContent();
+                List<Pair<String, Integer>> fileChunks = obterListaDeArquivosNaPasta(FolderName);
+                dataLayer.UpdateNode(node.getId(), fileChunks);
                 return true;
             }
 
             else if (Package.Query.GET.equals(pPackage.getQuery())) {
-                Package node = new Package(pPackage.getContent());
-                //var locations = svcont.get(node.getValue());
                 return true;
             }
         }
 
-        if(pPackage.getType().equals(Package.Type.RESPONSE)){
-            if(Package.Query.REGISTER.equals(pPackage.getQuery())){
+        else if(pPackage.getType().equals(Package.Type.RESPONSE)){
+
+            if(pPackage.getQuery().equals(Package.Query.GET)){
+                System.out.println("Lista de nodes com o ficheiro: " + pPackage.getContent().replace("null",""));
+            }
+            else{
                 System.out.println(pPackage.getContent());
-                return true;
             }
-
-            else if (Package.Query.UPDATE.equals(pPackage.getQuery())){
-                NodeInfo node = new NodeInfo(pPackage.getContent());
-                //svcont.update(node.getIp(),node.getPort(), node.getFolderName());
-                return true;
-            }
-
-            else if (Package.Query.GET.equals(pPackage.getQuery())) {
-                Package node = new Package(pPackage.getContent());
-                //var locations = svcont.get(node.getValue());
-                return true;
-            }
+            return true;
         }
 
         return false;

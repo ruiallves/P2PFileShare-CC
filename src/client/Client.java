@@ -1,8 +1,8 @@
-package P2PFileShare_CC.srcUPDATED.client;
+package P2PFileShare_CC.src.client;
 
-import P2PFileShare_CC.srcUPDATED.files.FileFolder;
-import P2PFileShare_CC.srcUPDATED.files.FileInfo;
-import P2PFileShare_CC.srcUPDATED.server.Server;
+import P2PFileShare_CC.src.packet.PacketManager;
+import P2PFileShare_CC.src.files.FileFolder;
+import P2PFileShare_CC.src.server.Server;
 
 import java.net.Socket;
 import java.util.UUID;
@@ -16,8 +16,10 @@ public class Client {
             Client.NODE_FOLDER = args[1];
             ClientInfo node = new ClientInfo(UUID.randomUUID().toString(),new FileFolder(NODE_FOLDER));
 
+            PacketManager packetManager = new PacketManager();
+
             Socket socket = new Socket(Server.ServerAddress, Server.ServerPort);
-            Thread clientThread = new Thread(new ClientHandler(socket,node));
+            Thread clientThread = new Thread(new ClientHandler(socket,node,packetManager));
             clientThread.start();
         }
         catch (Exception e){

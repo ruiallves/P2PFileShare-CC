@@ -1,17 +1,16 @@
-package P2PFileShare_CC.srcUPDATED.files;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+package P2PFileShare_CC.src.files;
 
 public class FileInfo {
 
+
     private String fileName;
     private long fileLength;
+    private long chunks;
 
     public FileInfo(String fileName, long fileLength) {
         this.fileName = fileName;
         this.fileLength = fileLength;
+        this.chunks = fileLength / 256;
     }
 
     public String getFileName() {

@@ -1,4 +1,4 @@
-package P2PFileShare_CC.srcUPDATED.files;
+package P2PFileShare_CC.src.files;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,5 +28,9 @@ public class FileFolder {
         }
 
         this.folder = listaDeArquivos;
+    }
+
+    public List<FileInfo> getFolder(){
+        return this.folder;
     }
 }

@@ -1,19 +1,20 @@
-package P2PFileShare_CC.src;
+package P2PFileShare_CC.src.packet;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-public class Package implements Serializable {
+public class Packet implements Serializable {
 
-    enum Type {
+    public enum Type {
         REQUEST,
         RESPONSE
     }
 
-    enum Query {
+    public enum Query {
         GET,
         REGISTER,
-        UPDATE
+        UPDATE;
+
     }
 
     private String id;
@@ -22,7 +23,7 @@ public class Package implements Serializable {
     private String value;
     private String content;
 
-    public Package(Type type, Query query, String value, String content) {
+    public Packet(Type type, Query query, String value, String content) {
         this.id = UUID.randomUUID().toString();
         this.type = type;
         this.query = query;
@@ -30,7 +31,7 @@ public class Package implements Serializable {
         this.content = content;
     }
 
-    public Package(String pPackageAsString) {
+    public Packet(String pPackageAsString) {
         String[] parts = pPackageAsString.split(":|;");
         if (parts.length == 5) {
             this.id = parts[0].substring("Package-".length());
@@ -82,28 +83,24 @@ public class Package implements Serializable {
 
         sb.append("Package-" + id + ":");
 
-        // Verifique se 'type' é nulo antes de chamá-lo
         if (type != null) {
             sb.append(type.toString() + ";");
         } else {
             sb.append("null;");
         }
 
-        // Verifique se 'query' é nulo antes de chamá-lo
         if (query != null) {
             sb.append(query.toString() + ";");
         } else {
             sb.append("null;");
         }
 
-        // Verifique se 'value' é nulo antes de chamá-lo
         if (value != null) {
             sb.append(value.toString() + ";");
         } else {
             sb.append("null;");
         }
 
-        // Verifique se 'content' é nulo antes de chamá-lo
         if (content != null) {
             sb.append(content);
         } else {

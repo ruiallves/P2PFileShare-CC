@@ -1,4 +1,6 @@
-package P2PFileShare_CC.srcUPDATED.server;
+package P2PFileShare_CC.src.server;
+
+import P2PFileShare_CC.src.packet.PacketManager;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -15,9 +17,10 @@ public class Server {
             Socket socket;
             ServerSocket serverSocket = new ServerSocket(ServerPort);
             System.out.println("Servidor ativo em " + ServerAddress + " porta " + ServerPort);
+            PacketManager packetManager = new PacketManager();
 
             while((socket = serverSocket.accept()) != null){
-                new Thread(new ServerHandler(socket)).start();
+                new Thread(new ServerHandler(socket,packetManager)).start();
             }
 
             serverSocket.close();

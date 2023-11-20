@@ -20,34 +20,23 @@ public class Packet implements Serializable {
     private String id;
     private Type type;
     private Query query;
-    private String value;
     private String content;
 
-    public Packet(Type type, Query query, String value, String content) {
+    public Packet(Type type, Query query, String content) {
         this.id = UUID.randomUUID().toString();
         this.type = type;
         this.query = query;
-        this.value = value;
         this.content = content;
     }
 
     public Packet(String pPackageAsString) {
         String[] parts = pPackageAsString.split(":|;");
-        if (parts.length == 5) {
+        if (parts.length == 4) {
             this.id = parts[0].substring("Package-".length());
             this.type = Type.valueOf(parts[1]);
             this.query = Query.valueOf(parts[2]);
-            this.value = parts[3];
-            this.content = parts[4];
+            this.content = parts[3];
         }
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public Query getQuery() {
@@ -91,12 +80,6 @@ public class Packet implements Serializable {
 
         if (query != null) {
             sb.append(query.toString() + ";");
-        } else {
-            sb.append("null;");
-        }
-
-        if (value != null) {
-            sb.append(value.toString() + ";");
         } else {
             sb.append("null;");
         }

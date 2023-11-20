@@ -1,6 +1,5 @@
 package P2PFileShare_CC.src.client;
 
-import P2PFileShare_CC.src.Package;
 import P2PFileShare_CC.src.packet.Packet;
 import P2PFileShare_CC.src.packet.PacketManager;
 
@@ -37,19 +36,19 @@ public class ClientHandler implements Runnable{
                     continue;
                 }
 
-                if (reader.toUpperCase().equals("REGISTER") && register_controller == 1) {
-                    Packet register = new Packet(Packet.Type.REQUEST, Packet.Query.REGISTER, node.toString(), node.toString());
+                if (reader.toUpperCase().equals("REGISTER")) {
+                    Packet register = new Packet(Packet.Type.REQUEST, Packet.Query.REGISTER, node.toString());
                     out.println(register.toString());
                     register_controller = 0;
                 }
 
                else if (reader.toUpperCase().equals("UPDATE") && register_controller == 0) {
-                    Packet update = new Packet(Packet.Type.REQUEST, Packet.Query.UPDATE, node.toString() , node.toString());
+                    Packet update = new Packet(Packet.Type.REQUEST, Packet.Query.UPDATE, node.toString());
                     out.println(update.toString());
                 }
 
                else if (words[0].toUpperCase().equals("GET") && register_controller == 0) {
-                    Packet get = new Packet(Packet.Type.REQUEST, Packet.Query.GET, node.toString(), words[1]);
+                    Packet get = new Packet(Packet.Type.REQUEST, Packet.Query.GET, words[1]);
                     out.println(get.toString());
                 }
 

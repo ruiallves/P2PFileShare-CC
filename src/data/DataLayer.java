@@ -7,6 +7,7 @@ import P2PFileShare_CC.src.files.FileInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DataLayer{
 
@@ -24,7 +25,10 @@ public class DataLayer{
     }
 
     public void updateFilesDB(ClientInfo node) {
-        FileFolder fileFolder = node.getFileFolder();
+        String path = node.getPath();
+
+        if (path != null) {
+            FileFolder fileFolder = new FileFolder(path);
 
             for (FileInfo fileInfo : fileFolder.getFolder()) {
                 String fileName = fileInfo.getFileName();
@@ -38,6 +42,42 @@ public class DataLayer{
                     files.put(fileName, nodeList);
                 }
             }
+        } else {
+            System.out.println("O caminho da pasta é nulo para o nó com ID: " + node.getID());
+        }
+    }
+
+    public List<String> getNodesWithFile(String filename) {
+        List<String> nodesWithFile = new ArrayList<>();
+
+        if (files.containsKey(filename)) {
+            List<ClientInfo> nodeList = files.get(filename);
+
+            for (ClientInfo node : nodeList) {
+                nodesWithFile.add(node.getID());
+            }
+        }
+
+        return nodesWithFile;
+    }
+
+    public void imprimirConteudo() {
+        System.out.println("Conteúdo da HashMap 'files':");
+        imprimirHashMap(files);
+
+        System.out.println("\nConteúdo da HashMap 'nodes':");
+        imprimirHashMap(nodes);
+    }
+
+    private static void imprimirHashMap(Map<String, ?> hashMap) {
+        for (Map.Entry<String, ?> entry : hashMap.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            System.out.println("Chave: " + key);
+            System.out.println("Valor: " + value);
+            System.out.println("------");
+        }
     }
 
 }

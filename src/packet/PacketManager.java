@@ -15,34 +15,28 @@ public class PacketManager {
     }
 
     public void manager(Packet pPacket){
-        ClientInfo node = new ClientInfo(pPacket.getContent());
-
 
         if(pPacket.getType().equals(Packet.Type.REQUEST)){
 
             switch (pPacket.getQuery()){
 
                 case Packet.Query.REGISTER:
-                    dataLayer.registerNode(node);
+                    ClientInfo nodeREG = new ClientInfo(pPacket.getContent());
+                    dataLayer.registerNode(nodeREG);
                     break;
 
                 case Packet.Query.UPDATE:
-                    dataLayer.updateFilesDB(node);
+                    ClientInfo nodeUPD = new ClientInfo(pPacket.getContent());
+                    dataLayer.updateFilesDB(nodeUPD);
                     break;
 
                 case Packet.Query.GET:
+                    pPacket.setContent(dataLayer.getNodesWithFile(pPacket.getContent()).toString());
                     break;
             }
         }
         else if(pPacket.getType().equals(Packet.Type.RESPONSE)){
-
-            switch (pPacket.getQuery()){
-
-                case Packet.Query.REGISTER, Packet.Query.UPDATE:
-                    System.out.println(pPacket.getContent());
-                    break;
-
-            }
+            System.out.println(pPacket.getContent());
         }
     }
 }

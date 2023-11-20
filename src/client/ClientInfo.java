@@ -6,17 +6,20 @@ public class ClientInfo {
 
     private String ID;
     private FileFolder fileFolder;
+    private String path;
 
-    public ClientInfo(String ID,FileFolder fileFolder){
+    public ClientInfo(String ID,FileFolder fileFolder,String path){
         this.ID = ID;
         this.fileFolder = fileFolder;
+        this.path = path;
     }
 
     public ClientInfo(String sToClient){
         String[] parts = sToClient.split(",");
-        if(parts.length == 2){
+        if(parts.length == 3){
             this.ID = parts[0];
-            this.fileFolder = new FileFolder(parts[1]);
+            this.fileFolder = new FileFolder(parts[2]);
+            this.path = parts[2];
         }
     }
 
@@ -28,7 +31,11 @@ public class ClientInfo {
         return this.ID;
     }
 
+    public String getPath(){
+        return this.path;
+    }
+
     public String toString(){
-        return getID() + "," + getFileFolder();
+        return getID() + "," + getFileFolder() + "," + getPath();
     }
 }

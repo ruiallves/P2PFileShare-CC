@@ -20,4 +20,8 @@ public class FileInfo {
     public long getFileLength() {
         return fileLength;
     }
+
+    public long getChunks(){
+        return this.chunks;
+    }
 }

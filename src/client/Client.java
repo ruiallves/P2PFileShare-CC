@@ -14,7 +14,7 @@ public class Client {
 
         try{
             Client.NODE_FOLDER = args[1];
-            ClientInfo node = new ClientInfo(UUID.randomUUID().toString(),new FileFolder(NODE_FOLDER));
+            ClientInfo node = new ClientInfo(UUID.randomUUID().toString(),new FileFolder(NODE_FOLDER),NODE_FOLDER);
 
             PacketManager packetManager = new PacketManager();
 

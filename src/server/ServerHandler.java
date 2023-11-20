@@ -52,6 +52,9 @@ public class ServerHandler implements Runnable{
                         break;
 
                     case Packet.Query.GET:
+                        packetManager.manager(pPacket);
+                        pPacket.setType(Packet.Type.RESPONSE);
+                        out.println(pPacket.toString());
                         break;
                 }
             }

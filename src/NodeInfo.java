@@ -8,7 +8,7 @@ public class NodeInfo {
     private int port;
     private String folderName;
 
-    public  NodeInfo(String ip, int port, String folderName) {
+    public NodeInfo(String ip, int port, String folderName) {
         this.id = UUID.randomUUID().toString();
         this.ip = ip;
         this.port = port;

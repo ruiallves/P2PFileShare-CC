@@ -4,6 +4,7 @@ import P2PFileShare_CC.src.packet.PacketManager;
 import P2PFileShare_CC.src.files.FileFolder;
 import P2PFileShare_CC.src.server.Server;
 
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.UUID;
 
@@ -14,8 +15,7 @@ public class Client {
 
         try{
             Client.NODE_FOLDER = args[1];
-            ClientInfo node = new ClientInfo(UUID.randomUUID().toString(),new FileFolder(NODE_FOLDER),NODE_FOLDER);
-
+            ClientInfo node = new ClientInfo(UUID.randomUUID().toString(),new FileFolder(NODE_FOLDER),NODE_FOLDER,InetAddress.getLocalHost());
             PacketManager packetManager = new PacketManager();
 
             Socket socket = new Socket(Server.ServerAddress, Server.ServerPort);

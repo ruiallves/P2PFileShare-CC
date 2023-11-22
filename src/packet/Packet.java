@@ -1,6 +1,8 @@
 package P2PFileShare_CC.src.packet;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 public class Packet implements Serializable {
@@ -29,7 +31,7 @@ public class Packet implements Serializable {
         this.content = content;
     }
 
-    public Packet(String pPackageAsString) {
+    public Packet(String pPackageAsString) throws UnknownHostException {
         String[] parts = pPackageAsString.split(":|;");
         if (parts.length == 4) {
             this.id = parts[0].substring("Package-".length());

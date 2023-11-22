@@ -3,6 +3,8 @@ package P2PFileShare_CC.src.packet;
 import P2PFileShare_CC.src.client.ClientInfo;
 import P2PFileShare_CC.src.data.DataLayer;
 
+import java.net.UnknownHostException;
+
 public class PacketManager {
     private DataLayer dataLayer;
 
@@ -14,7 +16,7 @@ public class PacketManager {
         return this.dataLayer;
     }
 
-    public void manager(Packet pPacket){
+    public void manager(Packet pPacket) throws UnknownHostException {
 
         if(pPacket.getType().equals(Packet.Type.REQUEST)){
 

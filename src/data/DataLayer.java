@@ -1,17 +1,16 @@
 package P2PFileShare_CC.src.data;
 
 import P2PFileShare_CC.src.client.ClientInfo;
+import P2PFileShare_CC.src.files.FileBlock;
 import P2PFileShare_CC.src.files.FileFolder;
 import P2PFileShare_CC.src.files.FileInfo;
+import org.javatuples.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataLayer{
 
-    private HashMap<String, List<ClientInfo>> files;
+    private HashMap<String, List<Pair<ClientInfo, FileBlock>>> files;
     private HashMap<String, ClientInfo> nodes;
 
     public DataLayer()
@@ -34,11 +33,11 @@ public class DataLayer{
                 String fileName = fileInfo.getFileName();
 
                 if (files.containsKey(fileName)) {
-                    List<ClientInfo> nodeList = files.get(fileName);
-                    nodeList.add(node);
+                    List<Pair<ClientInfo, FileBlock>> nodeList = files.get(fileName);
+                    addNodeAndBlocks(node, fileInfo, nodeList);
                 } else {
-                    List<ClientInfo> nodeList = new ArrayList<>();
-                    nodeList.add(node);
+                    List<Pair<ClientInfo, FileBlock>> nodeList = new ArrayList<>();
+                    addNodeAndBlocks(node, fileInfo, nodeList);
                     files.put(fileName, nodeList);
                 }
             }
@@ -47,19 +46,34 @@ public class DataLayer{
         }
     }
 
+    private void addNodeAndBlocks(ClientInfo node, FileInfo fileInfo, List<Pair<ClientInfo, FileBlock>> nodeList) {
+        for (FileBlock block : fileInfo.getBlocks()) {
+            Pair<ClientInfo, FileBlock> pair = new Pair<>(node, block);
+            nodeList.add(pair);
+        }
+    }
+
     public List<String> getNodesWithFile(String filename) {
         List<String> nodesWithFile = new ArrayList<>();
+        Set<String> uniqueNodes = new HashSet<>();
 
         if (files.containsKey(filename)) {
-            List<ClientInfo> nodeList = files.get(filename);
+            List<Pair<ClientInfo, FileBlock>> nodeList = files.get(filename);
 
-            for (ClientInfo node : nodeList) {
-                nodesWithFile.add(node.getID());
+            for (Pair<ClientInfo, FileBlock> pair : nodeList) {
+                String nodeID = pair.getValue0().getID();
+                int blockID = pair.getValue1().getBlockNumber();
+
+                if (uniqueNodes.add(nodeID)) {
+                    nodesWithFile.add(nodeID);
+                }
             }
         }
 
         return nodesWithFile;
     }
+
+
 
     public void imprimirConteudo() {
         System.out.println("Conteúdo da HashMap 'files':");

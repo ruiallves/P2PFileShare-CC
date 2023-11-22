@@ -1,17 +1,20 @@
 package P2PFileShare_CC.src.client;
 
+import P2PFileShare_CC.src.files.FileBlock;
 import P2PFileShare_CC.src.files.FileFolder;
+
+import java.util.HashMap;
 
 public class ClientInfo {
 
     private String ID;
     private FileFolder fileFolder;
-    private String path;
+    private String pathFolder;
 
     public ClientInfo(String ID,FileFolder fileFolder,String path){
         this.ID = ID;
         this.fileFolder = fileFolder;
-        this.path = path;
+        this.pathFolder = path;
     }
 
     public ClientInfo(String sToClient){
@@ -19,7 +22,7 @@ public class ClientInfo {
         if(parts.length == 3){
             this.ID = parts[0];
             this.fileFolder = new FileFolder(parts[2]);
-            this.path = parts[2];
+            this.pathFolder = parts[2];
         }
     }
 
@@ -32,7 +35,7 @@ public class ClientInfo {
     }
 
     public String getPath(){
-        return this.path;
+        return this.pathFolder;
     }
 
     public String toString(){

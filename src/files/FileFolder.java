@@ -20,7 +20,9 @@ public class FileFolder {
                 if (arquivo.isFile()) {
                     String nomeDoArquivo = arquivo.getName();
                     long comprimentoDoArquivo = arquivo.length();
-                    listaDeArquivos.add(new FileInfo(nomeDoArquivo, comprimentoDoArquivo));
+                    String caminhoDoArquivo = arquivo.getAbsolutePath();
+                    FileInfo file = new FileInfo(nomeDoArquivo, comprimentoDoArquivo,caminhoDoArquivo);
+                    listaDeArquivos.add(file);
                 }
             }
         } else {

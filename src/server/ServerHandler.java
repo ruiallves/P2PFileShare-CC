@@ -47,7 +47,7 @@ public class ServerHandler implements Runnable{
                     case Packet.Query.UPDATE:
                         packetManager.manager(pPacket);
                         pPacket.setType(Packet.Type.RESPONSE);
-                        pPacket.setContent("FSNode atualizado com sucesso!");
+                        pPacket.setContent("FSTracker atualizado com sucesso!");
                         out.println(pPacket.toString());
                         break;
 

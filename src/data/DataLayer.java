@@ -6,6 +6,7 @@ import P2PFileShare_CC.src.files.FileFolder;
 import P2PFileShare_CC.src.files.FileInfo;
 import org.javatuples.Pair;
 
+import java.net.InetAddress;
 import java.util.*;
 
 public class DataLayer{
@@ -53,15 +54,15 @@ public class DataLayer{
         }
     }
 
-    public List<String> getNodesWithFile(String filename) {
-        List<String> nodesWithFile = new ArrayList<>();
-        Set<String> uniqueNodes = new HashSet<>();
+    public List<InetAddress> getNodesWithFile(String filename) {
+        List<InetAddress> nodesWithFile = new ArrayList<>();
+        Set<InetAddress> uniqueNodes = new HashSet<>();
 
         if (files.containsKey(filename)) {
             List<Pair<ClientInfo, FileBlock>> nodeList = files.get(filename);
 
             for (Pair<ClientInfo, FileBlock> pair : nodeList) {
-                String nodeID = pair.getValue0().getID();
+                InetAddress nodeID = pair.getValue0().getIpClient();
                 int blockID = pair.getValue1().getBlockNumber();
 
                 if (uniqueNodes.add(nodeID)) {

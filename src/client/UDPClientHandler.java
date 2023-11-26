@@ -1,5 +1,6 @@
 package P2PFileShare_CC.src.client;
 
+import P2PFileShare_CC.src.files.FileInfo;
 import P2PFileShare_CC.src.fstp.Fstp;
 import P2PFileShare_CC.src.packet.Packet;
 import P2PFileShare_CC.src.packet.PacketManager;
@@ -35,6 +36,7 @@ public class UDPClientHandler implements Runnable{
                     udpSocket.receive(packet);
                     Fstp fstpPacket = new Fstp(packet.getData());
                     //fstpPacket.printFsChunk();
+
                     processUDPPacket(fstpPacket);
                 }
             } catch (IOException e) {
@@ -51,9 +53,11 @@ public class UDPClientHandler implements Runnable{
                 String fileName = fstpPacket.getFileName();
                 String filePath = node.getPath() + "/" + fileName;
 
+                FileInfo file = createFileInfo(fileName,filePath);
+
+
                 try {
                     byte[] fileContent = readFileBytes(filePath);
-
                     Fstp responsePacket = new Fstp(fileContent, 2, node.getIpClient().toString(),fileName);
                     sendUDPPacket(responsePacket, InetAddress.getByName(nodeIp), 8888);
                 } catch (IOException e) {
@@ -89,7 +93,7 @@ public class UDPClientHandler implements Runnable{
         Path path = Paths.get(filePath);
         Files.write(path, fileContent);
     }
-        public void sendUDPPacket(Fstp fstpPacket, InetAddress address, int port) {
+    public void sendUDPPacket(Fstp fstpPacket, InetAddress address, int port) {
             try {
                 byte[] packetData = fstpPacket.getPacket();
                 DatagramPacket packet = new DatagramPacket(packetData, packetData.length, address, port);
@@ -104,5 +108,22 @@ public class UDPClientHandler implements Runnable{
             return input.substring(1);
         }
         return input;
+    }
+
+    public static FileInfo createFileInfo(String fileName, String filePath) {
+        Path file = Paths.get(filePath);
+
+        if (Files.exists(file)) {
+            try {
+                long fileLength = Files.size(file);
+                return new FileInfo(fileName, fileLength, filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("O arquivo não foi encontrado no caminho especificado.");
+        }
+
+        return null;
     }
 }

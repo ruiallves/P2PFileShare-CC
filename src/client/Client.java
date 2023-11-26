@@ -16,9 +16,7 @@ public class Client {
         try {
             Client.NODE_FOLDER = args[1];
 
-            String nodeID = UUID.randomUUID().toString();
-
-            ClientInfo node = new ClientInfo(nodeID, new FileFolder(Client.NODE_FOLDER), Client.NODE_FOLDER, InetAddress.getByName(args[3]));
+            ClientInfo node = new ClientInfo(UUID.randomUUID().toString(), new FileFolder(Client.NODE_FOLDER), Client.NODE_FOLDER, InetAddress.getByName(args[3]));
             PacketManager packetManager = new PacketManager();
             UDPClientHandler udpClientHandler = new UDPClientHandler(node, CLIENT_PORT, packetManager);
 

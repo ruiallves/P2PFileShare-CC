@@ -58,7 +58,7 @@ public class Fstp {
                 this.header[i++] = b;
             }
         } catch (UnknownHostException e) {
-            e.printStackTrace(); // Trate a exceção conforme necessário
+            e.printStackTrace();
         }
     }
 
@@ -125,9 +125,9 @@ public class Fstp {
     public void printFsChunk() {
         System.out.println("    Type " + this.getType());
         System.out.println("    Client Id " + this.getClientIp());
+        System.out.println("    FileName" + this.getFileName());
         System.out.println("    Size " + this.getDataSize());
         System.out.println("    Data " + new String(this.getData()));
-        System.out.println("    FileName" + this.getFileName());
     }
 
     public static String removeLeadingSlash(String input) {

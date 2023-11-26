@@ -10,17 +10,9 @@ import java.net.Socket;
 public class Server {
 
     public static final int ServerPort = 9090;
-    public static final String ServerAddress;
-
-    static {
-        try {
-            ServerAddress = InetAddress.getLocalHost().getHostAddress();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static void main(String[] args) throws IOException {
+        String ServerAddress = args[1];
 
         try {
             Socket socket;

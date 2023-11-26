@@ -61,9 +61,9 @@ public class ClientHandler implements Runnable {
                 packetManager.manager(pPacket);
 
                 if (pPacket.getType().equals(Packet.Type.RESPONSE) && pPacket.getQuery().equals(Packet.Query.GET)) {
-                //    String[] ips = handleGetResponse(pPacket);
-                //    Fstp packet = new Fstp(pPacket.getContent().getBytes(),1,0,node.getID());
-                //    udpClientHandler.sendUDPPacket(packet, InetAddress.getByName(ips[0]),8888);
+                    String[] ips = handleGetResponse(pPacket);
+                    Fstp packet = new Fstp(words[1].getBytes(),1, node.getIpClient().toString(), words[1]);
+                    udpClientHandler.sendUDPPacket(packet, InetAddress.getByName(ips[0]),8888);
                 }
 
             }

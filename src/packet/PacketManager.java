@@ -30,6 +30,7 @@ public class PacketManager {
                 case Packet.Query.UPDATE:
                     ClientInfo nodeUPD = new ClientInfo(pPacket.getContent());
                     dataLayer.updateFilesDB(nodeUPD);
+                    dataLayer.imprimirConteudo();
                     break;
 
                 case Packet.Query.GET:
@@ -37,7 +38,7 @@ public class PacketManager {
                     break;
             }
         }
-        else if(pPacket.getType().equals(Packet.Type.RESPONSE)){
+        else if(pPacket.getType().equals(Packet.Type.RESPONSE) && !pPacket.getQuery().equals(Packet.Query.GET)){
             System.out.println(pPacket.getContent());
         }
     }

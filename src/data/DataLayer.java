@@ -74,6 +74,16 @@ public class DataLayer{
         return nodesWithFile;
     }
 
+    public ClientInfo getClientInfoById(String clientId) {
+        for (Map.Entry<String, ClientInfo> entry : nodes.entrySet()) {
+            if (entry.getValue().getID().equals(clientId)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+
 
 
     public void imprimirConteudo() {

@@ -1,13 +1,18 @@
 package P2PFileShare_CC.src.fstp;
 
+import P2PFileShare_CC.src.packet.PacketManager;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class Fstp {
 
-    public static final int HEADER_SIZE = 12;
-    public static final int BUFFER_SIZE  = 268; // 256(tamanho maximo) + 16(header)
+    public static final int HEADER_SIZE = 44;
+    public static final int BUFFER_SIZE  = 300; // 256(tamanho maximo) + 44(header)
     public static final int PAYLOAD_SIZE = BUFFER_SIZE - HEADER_SIZE;
     private byte[] data;
     private byte[] header;
@@ -23,12 +28,13 @@ public class Fstp {
 
     }
 
-    public Fstp(byte[] data, int type, String clientId) {
+    public Fstp(byte[] data, int type, String clientId, String fileName) {
         this.data = data;
         this.header = new byte[HEADER_SIZE];
         setType(type);
-        setClientId(clientId);
+        setClientIp(clientId);
         setDataSize(data.length);
+        setFileName(fileName);
     }
 
     public void setType(int type) {
@@ -43,28 +49,53 @@ public class Fstp {
         return ByteBuffer.wrap(this.header, 0, 4).getInt();
     }
 
-    public void setClientId(String clientId) {
-        byte[] clientIdBytes = clientId.getBytes(StandardCharsets.UTF_8);
-        int i = 4;
-        for (byte b : clientIdBytes) {
+    public void setClientIp(String clientIp) {
+        try {
+            InetAddress address = InetAddress.getByName(removeLeadingSlash(clientIp));
+            byte[] addressBytes = address.getAddress();
+            int i = 4;
+            for (byte b : addressBytes) {
+                this.header[i++] = b;
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace(); // Trate a exceção conforme necessário
+        }
+    }
+
+    public String getClientIp() {
+        byte[] addressBytes = Arrays.copyOfRange(this.header, 4, 8);
+        try {
+            InetAddress address = InetAddress.getByAddress(addressBytes);
+            return address.getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void setFileName(String fileName) {
+        byte[] fileNameBytes = fileName.getBytes(StandardCharsets.UTF_8);
+        int i = 28;
+        for (byte b : fileNameBytes) {
             this.header[i++] = b;
         }
     }
 
-    public int getClientId() {
-        return ByteBuffer.wrap(this.header, 8, 4).getInt();
+    public String getFileName() {
+        byte[] fileNameBytes = Arrays.copyOfRange(this.header, 28, 44);
+        return new String(fileNameBytes, StandardCharsets.UTF_8).trim();
     }
 
     public void setDataSize(int dataSize) {
         byte[] chunkIdBytes = ByteBuffer.allocate(4).putInt(dataSize).array();
-        int i = 8;
+        int i = 24;
         for (byte b : chunkIdBytes) {
             this.header[i++] = b;
         }
     }
 
     public int getDataSize() {
-        return ByteBuffer.wrap(this.header, 12, 4).getInt();
+        return ByteBuffer.wrap(this.header, 24, 4).getInt();
     }
 
     public void setData(byte[] d, int size) {
@@ -93,15 +124,17 @@ public class Fstp {
 
     public void printFsChunk() {
         System.out.println("    Type " + this.getType());
-        System.out.println("    Client Id " + this.getClientId());
+        System.out.println("    Client Id " + this.getClientIp());
         System.out.println("    Size " + this.getDataSize());
         System.out.println("    Data " + new String(this.getData()));
+        System.out.println("    FileName" + this.getFileName());
     }
 
-    public void printFsChunkHeader() {
-        System.out.println("    Type " + this.getType());
-        System.out.println("    Client Id " + this.getClientId());
-        System.out.println("    Size " + this.getDataSize());
+    public static String removeLeadingSlash(String input) {
+        if (input.startsWith("/")) {
+            return input.substring(1);
+        }
+        return input;
     }
 
 }

@@ -1,18 +1,15 @@
 package P2PFileShare_CC.src.fstp;
 
-import P2PFileShare_CC.src.packet.PacketManager;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.UUID;
 
 public class Fstp {
 
-    public static final int HEADER_SIZE = 44;
-    public static final int BUFFER_SIZE  = 300; // 256(tamanho maximo) + 44(header)
+    public static final int HEADER_SIZE = 48;
+    public static final int BUFFER_SIZE = 304; // 256(tamanho máximo) + 44(header)
     public static final int PAYLOAD_SIZE = BUFFER_SIZE - HEADER_SIZE;
     private byte[] data;
     private byte[] header;
@@ -25,7 +22,16 @@ public class Fstp {
         this.header = Arrays.copyOfRange(packet, 0, HEADER_SIZE);
         int dataSize = getDataSize();
         this.data = Arrays.copyOfRange(packet, HEADER_SIZE, HEADER_SIZE + dataSize);
+    }
 
+    public Fstp(byte[] data, int type, String clientId, String fileName, int totalBlocks) {
+        this.data = data;
+        this.header = new byte[HEADER_SIZE];
+        setType(type);
+        setClientIp(clientId);
+        setDataSize(data.length);
+        setFileName(fileName);
+        setTotalBlocks(totalBlocks);
     }
 
     public Fstp(byte[] data, int type, String clientId, String fileName) {
@@ -35,6 +41,7 @@ public class Fstp {
         setClientIp(clientId);
         setDataSize(data.length);
         setFileName(fileName);
+        // Não define o campo totalBlocks neste construtor
     }
 
     public void setType(int type) {
@@ -121,6 +128,23 @@ public class Fstp {
     public int getPacketSize() {
         return this.header.length + this.data.length;
     }
+    public void setTotalBlocks(int totalBlocks) {
+        if (totalBlocks >= 0) {
+            byte[] totalBlocksBytes = ByteBuffer.allocate(4).putInt(totalBlocks).array();
+            int i = 44;
+            for (byte b : totalBlocksBytes) {
+                this.header[i++] = b;
+            }
+        }
+    }
+
+    public int getTotalBlocks() {
+        if (this.header.length >= 44) {
+            return ByteBuffer.wrap(this.header, 44, 4).getInt();
+        } else {
+            return -1;
+        }
+    }
 
     public void printFsChunk() {
         System.out.println("    Type " + this.getType());
@@ -136,5 +160,4 @@ public class Fstp {
         }
         return input;
     }
-
 }

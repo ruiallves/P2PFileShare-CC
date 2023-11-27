@@ -1,14 +1,24 @@
 package P2PFileShare_CC.src.client;
 
+import P2PFileShare_CC.src.files.FileInfo;
 import P2PFileShare_CC.src.fstp.Fstp;
 import P2PFileShare_CC.src.packet.Packet;
 import P2PFileShare_CC.src.packet.PacketManager;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ClientHandler implements Runnable {
     private Socket socket;
@@ -62,9 +72,39 @@ public class ClientHandler implements Runnable {
 
                 if (pPacket.getType().equals(Packet.Type.RESPONSE) && pPacket.getQuery().equals(Packet.Query.GET)) {
                     String[] ips = handleGetResponse(pPacket);
-                    //if(!ips[0].equals(node.getIpClient().toString())){} //%todo relembrar disto!!
-                    Fstp packet = new Fstp(words[1].getBytes(),1, node.getIpClient().toString(), words[1]);
-                    udpClientHandler.sendUDPPacket(packet, InetAddress.getByName(ips[0]),8888);
+
+                    FileInfo file = createFileInfo(words[1],node.getPath() + "/" + words[1]); //
+                    assert file != null;
+                    int n_blocks = (int) Math.ceil((double) file.getFileLength() / 256);
+                    int n_nodes = ips.length;
+
+                    int blocksPerNode = n_blocks / n_nodes;
+                    int remainder = n_blocks % n_nodes;
+
+                    Map<String, List<Integer>> blockDistributionMap = new HashMap<>();
+
+                    int blockCounter = 0;
+                    for (int i = 0; i < n_nodes; i++) {
+                        int blocksAssigned = blocksPerNode + (i < remainder ? 1 : 0);
+
+                        List<Integer> nodeBlocks = new ArrayList<>();
+                        for (int j = 0; j < blocksAssigned; j++) {
+                            nodeBlocks.add(blockCounter++);
+                        }
+
+                        blockDistributionMap.put(ips[i], nodeBlocks);
+                    }
+
+                    while(n_nodes > 0){
+                        for(String ip : ips){
+                            //if(!ip.equals(node.getIpClient().toString().substring(1))){
+                                Fstp packet = new Fstp(serializeBlockList(blockDistributionMap.get(ip)),1, node.getIpClient().toString(), words[1]);
+                                udpClientHandler.sendUDPPacket(packet, InetAddress.getByName(ip),8888);
+                            //}
+                        }
+                        n_nodes--;
+                    }
+
                 }
 
             }
@@ -89,7 +129,28 @@ public class ClientHandler implements Runnable {
         return ips;
     }
 
-    public PacketManager getPacketManager(){
-        return this.packetManager;
+    public static FileInfo createFileInfo(String fileName, String filePath) {
+        Path file = Paths.get(filePath);
+
+        if (Files.exists(file)) {
+            try {
+                long fileLength = Files.size(file);
+                return new FileInfo(fileName, fileLength, filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("O arquivo não foi encontrado no caminho especificado.");
+        }
+
+        return null;
+    }
+
+    public static byte[] serializeBlockList(List<Integer> blockList) {
+        ByteBuffer buffer = ByteBuffer.allocate(blockList.size() * 4);
+        for (int block : blockList) {
+            buffer.putInt(block);
+        }
+        return buffer.array();
     }
 }

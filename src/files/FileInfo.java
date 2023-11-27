@@ -1,5 +1,6 @@
 package P2PFileShare_CC.src.files;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -70,4 +71,17 @@ public class FileInfo {
             System.out.println("\n");
         }
     }
+
+    public static void assembleFile(List<FileBlock> blocks, String outputPath) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(outputPath)) {
+            for (FileBlock block : blocks) {
+                byte[] blockContentBytes = block.getContent().getBytes();
+                fileOutputStream.write(blockContentBytes);
+            }
+            System.out.println("Arquivo montado com sucesso em: " + outputPath);
+        } catch (IOException e) {
+            System.out.println("Erro ao montar o arquivo: " + e.getMessage());
+        }
+    }
+
 }

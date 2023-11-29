@@ -15,7 +15,8 @@ public class Packet implements Serializable {
     public enum Query {
         GET,
         REGISTER,
-        UPDATE;
+        UPDATE,
+        FILE_INFO;
 
     }
 

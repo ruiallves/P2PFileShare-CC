@@ -3,7 +3,6 @@ package P2PFileShare_CC.src.client;
 import P2PFileShare_CC.src.files.FileBlock;
 import P2PFileShare_CC.src.files.FileInfo;
 import P2PFileShare_CC.src.fstp.Fstp;
-import P2PFileShare_CC.src.packet.Packet;
 import P2PFileShare_CC.src.packet.PacketManager;
 
 import java.io.File;
@@ -15,7 +14,6 @@ import java.nio.file.Files;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -53,7 +51,7 @@ public class UDPClientHandler implements Runnable{
             }
         }
 
-    private void processUDPPacket(Fstp fstpPacket) {
+    private void processUDPPacket(Fstp fstpPacket) throws UnknownHostException {
         int type = fstpPacket.getType();
         String nodeIp = removeLeadingSlash(fstpPacket.getClientIp());
 
@@ -61,6 +59,8 @@ public class UDPClientHandler implements Runnable{
             case 1:
                 String fileName = fstpPacket.getFileName();
                 String filePath = node.getPath() + "/" + fileName;
+                System.out.println(fileName);
+                System.out.println(filePath);
                 List<Integer> receivedBlocks = deserializeBlockList(fstpPacket.getData());
                 FileInfo file = createFileInfo(fileName, filePath);
 
@@ -81,7 +81,7 @@ public class UDPClientHandler implements Runnable{
                 byte[] fileContent = fstpPacket.getData();
                 String fileNames = getFileName();
                 int blockNumber = Integer.parseInt(fstpPacket.getFileName()); // AQUI VEM O BLOCKNUMBER E NÃO O FILE NAME
-                String savePath = node.getPath() + fileNames;
+                String savePath = node.getPath() + "/" + fileNames;
                 int n_blocks = fstpPacket.getTotalBlocks();
 
                 try {
@@ -90,14 +90,13 @@ public class UDPClientHandler implements Runnable{
                     File[] files = tempDir.listFiles();
 
                     if (n_blocks == files.length) {
-                        assembleFile(fileNames, savePath, n_blocks);
-                        //System.out.println("Arquivo completo recebido e salvo em: " + savePath);
+                        assembleFile(fileNames, savePath);
+                        System.out.println("Arquivo completo recebido e salvo em: " + savePath);
                     }
                 } catch (IOException e) {
                     System.out.println("Erro ao salvar o bloco ou montar o arquivo: " + e.getMessage());
                 }
                 break;
-
 
             default:
                 System.out.println("Tipo de pacote desconhecido: " + type);
@@ -178,29 +177,37 @@ public class UDPClientHandler implements Runnable{
             return this.fileName;
     }
 
-    private void assembleFile(String fileName, String savePath, int totalBlocks) throws IOException {
+    private void assembleFile(String fileName, String savePath) throws IOException {
         File tempDir = new File(node.getPath() + "/temp_blocks");
         File[] files = tempDir.listFiles();
 
-        Arrays.sort(files, Comparator.comparingInt(file -> {
-            String name = file.getName();
-            int underscoreIndex = name.lastIndexOf('_');
-            int dotIndex = name.lastIndexOf('.');
-            return Integer.parseInt(name.substring(underscoreIndex + 1, dotIndex));
-        }));
+        List<File> orderedBlocks = new ArrayList<>();
 
-        try (FileOutputStream fos = new FileOutputStream(savePath)) {
-            for (File file : files) {
-                byte[] blockContent = Files.readAllBytes(file.toPath());
+        for (int i = 0; i < files.length; i++) {
+            String blockFileName = i + "_" + fileName;
+            File blockFile = new File(tempDir, blockFileName);
+            orderedBlocks.add(blockFile);
+        }
+
+        orderedBlocks.sort(Comparator.comparing(File::getName));
+
+        File outputFile = new File(savePath);
+        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+            for (File blockFile : orderedBlocks) {
+                byte[] blockContent = Files.readAllBytes(blockFile.toPath());
                 fos.write(blockContent);
             }
-        } catch (IOException e) {
-            throw new IOException("Erro ao montar o arquivo: " + e.getMessage());
-        } finally {
-            // Remova os blocos temporários após a montagem do arquivo
-            for (File file : files) {
-                file.delete();
-            }
         }
+
+        for (File blockFile : orderedBlocks) {
+            blockFile.delete();
+        }
+
+        tempDir.delete();
     }
+
+    public DatagramSocket getDatagramPacket(){
+            return this.udpSocket;
+    }
+
 }

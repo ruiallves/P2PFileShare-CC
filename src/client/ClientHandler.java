@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -72,10 +73,13 @@ public class ClientHandler implements Runnable {
 
                 if (pPacket.getType().equals(Packet.Type.RESPONSE) && pPacket.getQuery().equals(Packet.Query.GET)) {
                     String[] ips = handleGetResponse(pPacket);
+                    Packet get = new Packet(Packet.Type.REQUEST, Packet.Query.FILE_INFO, words[1]);
+                    out.println(get.toString());
+                    String packetMenssage = in.readLine();
+                    Packet packet = new Packet(packetMenssage);
+                    long filesize = Long.parseLong(packet.getContent());
 
-                    FileInfo file = createFileInfo(words[1],node.getPath() + "/" + words[1]); //
-                    assert file != null;
-                    int n_blocks = (int) Math.ceil((double) file.getFileLength() / 256);
+                    int n_blocks = (int) Math.ceil((double) filesize/ 256);
                     int n_nodes = ips.length;
 
                     int blocksPerNode = n_blocks / n_nodes;
@@ -97,10 +101,10 @@ public class ClientHandler implements Runnable {
 
                     while(n_nodes > 0){
                         for(String ip : ips){
-                            //if(!ip.equals(node.getIpClient().toString().substring(1))){
-                                Fstp packet = new Fstp(serializeBlockList(blockDistributionMap.get(ip)),1, node.getIpClient().toString(), words[1]);
-                                udpClientHandler.sendUDPPacket(packet, InetAddress.getByName(ip),8888);
-                            //}
+                            if(!ip.equals(node.getIpClient().toString().substring(1))){
+                                Fstp packettt = new Fstp(serializeBlockList(blockDistributionMap.get(ip)),1, node.getIpClient().toString(), words[1]);
+                                udpClientHandler.sendUDPPacket(packettt, InetAddress.getByName(ip),8888);
+                            }
                         }
                         n_nodes--;
                     }

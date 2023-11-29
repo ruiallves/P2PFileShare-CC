@@ -24,6 +24,9 @@ public class Fstp {
         this.data = Arrays.copyOfRange(packet, HEADER_SIZE, HEADER_SIZE + dataSize);
     }
 
+    //TYPES:
+    // 1-> BLOCK_REQUEST
+    // 2-> BLOCK_SEND
     public Fstp(byte[] data, int type, String clientId, String fileName, int totalBlocks) {
         this.data = data;
         this.header = new byte[HEADER_SIZE];
@@ -41,7 +44,6 @@ public class Fstp {
         setClientIp(clientId);
         setDataSize(data.length);
         setFileName(fileName);
-        // Não define o campo totalBlocks neste construtor
     }
 
     public void setType(int type) {

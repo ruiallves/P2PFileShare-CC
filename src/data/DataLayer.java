@@ -5,19 +5,22 @@ import P2PFileShare_CC.src.files.FileBlock;
 import P2PFileShare_CC.src.files.FileFolder;
 import P2PFileShare_CC.src.files.FileInfo;
 import org.javatuples.Pair;
-
+import java.util.HashMap;
+import java.util.List;
 import java.net.InetAddress;
 import java.util.*;
 
 public class DataLayer{
 
     private HashMap<String, List<Pair<ClientInfo, FileBlock>>> files;
+    private HashMap<String,FileInfo> file;
     private HashMap<String, ClientInfo> nodes;
 
     public DataLayer()
     {
         nodes = new HashMap<>();
         files = new HashMap<>();
+        file = new HashMap<>();
     }
 
     public void registerNode(ClientInfo node){
@@ -41,11 +44,14 @@ public class DataLayer{
                     addNodeAndBlocks(node, fileInfo, nodeList);
                     files.put(fileName, nodeList);
                 }
+
+                file.put(fileName, fileInfo);
             }
         } else {
             System.out.println("O caminho da pasta é nulo para o nó com ID: " + node.getID());
         }
     }
+
 
     private void addNodeAndBlocks(ClientInfo node, FileInfo fileInfo, List<Pair<ClientInfo, FileBlock>> nodeList) {
         for (FileBlock block : fileInfo.getBlocks()) {
@@ -74,12 +80,14 @@ public class DataLayer{
         return nodesWithFile;
     }
 
-    public ClientInfo getClientInfoById(String clientId) {
-        for (Map.Entry<String, ClientInfo> entry : nodes.entrySet()) {
-            if (entry.getValue().getID().equals(clientId)) {
-                return entry.getValue();
-            }
+    public ClientInfo getClientInfoByFileName(String fileName) {
+        List<Pair<ClientInfo, FileBlock>> occurrences = files.get(fileName);
+
+        if (occurrences != null && !occurrences.isEmpty()) {
+            Pair<ClientInfo, FileBlock> firstOccurrence = occurrences.get(0);
+            return firstOccurrence.getValue0();
         }
+
         return null;
     }
 
@@ -92,6 +100,9 @@ public class DataLayer{
 
         System.out.println("\nConteúdo da HashMap 'nodes':");
         imprimirHashMap(nodes);
+
+        System.out.println("\nConteúdo da HashMap 'file':");
+        imprimirHashMap(file);
     }
 
     private static void imprimirHashMap(Map<String, ?> hashMap) {
@@ -102,6 +113,15 @@ public class DataLayer{
             System.out.println("Chave: " + key);
             System.out.println("Valor: " + value);
             System.out.println("------");
+        }
+    }
+
+    public long getFileLength(String key) {
+        if (file.containsKey(key)) {
+            FileInfo fileInfo = file.get(key);
+            return fileInfo.getFileLength();
+        } else {
+            return -1;
         }
     }
 

@@ -10,7 +10,8 @@ import java.nio.ByteBuffer;
 import java.util.UUID;
 
 public class Client {
-    public static String NODE_FOLDER;    public static final int CLIENT_PORT = 8888; // Porta do cliente UDP
+    public static String NODE_FOLDER;
+    public static final int CLIENT_PORT = 8888; // Porta do cliente UDP
 
     public static void main(String[] args) {
         try {
@@ -31,9 +32,4 @@ public class Client {
         }
     }
 
-    private static byte[] convertUUIDTo4Bytes(UUID uuid) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[4]);
-        byteBuffer.putInt((int) (uuid.getMostSignificantBits() & 0xFFFFFFFFL));
-        return byteBuffer.array();
-    }
 }

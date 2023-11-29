@@ -30,15 +30,19 @@ public class PacketManager {
                 case Packet.Query.UPDATE:
                     ClientInfo nodeUPD = new ClientInfo(pPacket.getContent());
                     dataLayer.updateFilesDB(nodeUPD);
-                    dataLayer.imprimirConteudo();
+                    //dataLayer.imprimirConteudo();
                     break;
 
                 case Packet.Query.GET:
                     pPacket.setContent(dataLayer.getNodesWithFile(pPacket.getContent()).toString());
                     break;
+
+                case Packet.Query.FILE_INFO:
+                    pPacket.setContent(String.valueOf(dataLayer.getFileLength(pPacket.getContent())));
+                    break;
             }
         }
-        else if(pPacket.getType().equals(Packet.Type.RESPONSE) && !pPacket.getQuery().equals(Packet.Query.GET)){
+        else if(pPacket.getType().equals(Packet.Type.RESPONSE) && !pPacket.getQuery().equals(Packet.Query.GET) && !pPacket.getQuery().equals(Packet.Query.FILE_INFO)){
             System.out.println(pPacket.getContent());
         }
     }

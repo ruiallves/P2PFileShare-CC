@@ -51,7 +51,7 @@ public class ServerHandler implements Runnable{
                         out.println(pPacket.toString());
                         break;
 
-                    case Packet.Query.GET:
+                    case Packet.Query.GET, Packet.Query.FILE_INFO:
                         packetManager.manager(pPacket);
                         pPacket.setType(Packet.Type.RESPONSE);
                         out.println(pPacket.toString());

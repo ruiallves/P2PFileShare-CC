@@ -1,52 +1,45 @@
-package P2PFileShare_CC.src;
+package P2PFileShare_CC.src.packet;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.UUID;
 
-public class Package implements Serializable {
+public class Packet implements Serializable {
 
-    enum Type {
+    public enum Type {
         REQUEST,
         RESPONSE
     }
 
-    enum Query {
+    public enum Query {
         GET,
         REGISTER,
-        UPDATE
+        UPDATE,
+        FILE_INFO;
+
     }
 
     private String id;
     private Type type;
     private Query query;
-    private String value;
     private String content;
 
-    public Package(Type type, Query query, String value, String content) {
+    public Packet(Type type, Query query, String content) {
         this.id = UUID.randomUUID().toString();
         this.type = type;
         this.query = query;
-        this.value = value;
         this.content = content;
     }
 
-    public Package(String pPackageAsString) {
+    public Packet(String pPackageAsString) throws UnknownHostException {
         String[] parts = pPackageAsString.split(":|;");
-        if (parts.length == 5) {
+        if (parts.length == 4) {
             this.id = parts[0].substring("Package-".length());
             this.type = Type.valueOf(parts[1]);
             this.query = Query.valueOf(parts[2]);
-            this.value = parts[3];
-            this.content = parts[4];
+            this.content = parts[3];
         }
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public Query getQuery() {
@@ -82,28 +75,18 @@ public class Package implements Serializable {
 
         sb.append("Package-" + id + ":");
 
-        // Verifique se 'type' é nulo antes de chamá-lo
         if (type != null) {
             sb.append(type.toString() + ";");
         } else {
             sb.append("null;");
         }
 
-        // Verifique se 'query' é nulo antes de chamá-lo
         if (query != null) {
             sb.append(query.toString() + ";");
         } else {
             sb.append("null;");
         }
 
-        // Verifique se 'value' é nulo antes de chamá-lo
-        if (value != null) {
-            sb.append(value.toString() + ";");
-        } else {
-            sb.append("null;");
-        }
-
-        // Verifique se 'content' é nulo antes de chamá-lo
         if (content != null) {
             sb.append(content);
         } else {

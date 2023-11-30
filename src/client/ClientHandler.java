@@ -72,7 +72,7 @@ public class ClientHandler implements Runnable {
                 packetManager.manager(pPacket);
 
                 if (pPacket.getType().equals(Packet.Type.RESPONSE) && pPacket.getQuery().equals(Packet.Query.GET)) {
-                    String[] ips = handleGetResponse(pPacket);
+                    String[] ips = handleGetResponse(pPacket,node);
                     Packet get = new Packet(Packet.Type.REQUEST, Packet.Query.FILE_INFO, words[1]);
                     out.println(get.toString());
                     String packetMenssage = in.readLine();
@@ -82,33 +82,15 @@ public class ClientHandler implements Runnable {
                     int n_blocks = (int) Math.ceil((double) filesize/ 256);
                     int n_nodes = ips.length;
 
-                    int blocksPerNode = n_blocks / n_nodes;
-                    int remainder = n_blocks % n_nodes;
-
-                    Map<String, List<Integer>> blockDistributionMap = new HashMap<>();
-
-                    int blockCounter = 0;
-                    for (int i = 0; i < n_nodes; i++) {
-                        int blocksAssigned = blocksPerNode + (i < remainder ? 1 : 0);
-
-                        List<Integer> nodeBlocks = new ArrayList<>();
-                        for (int j = 0; j < blocksAssigned; j++) {
-                            nodeBlocks.add(blockCounter++);
-                        }
-
-                        blockDistributionMap.put(ips[i], nodeBlocks);
-                    }
+                    Map<String, List<Integer>> blockDistributionMap = getStringListMap(n_blocks, n_nodes, ips);
 
                     while(n_nodes > 0){
                         for(String ip : ips){
-                            if(!ip.equals(node.getIpClient().toString().substring(1))){
                                 Fstp packettt = new Fstp(serializeBlockList(blockDistributionMap.get(ip)),1, node.getIpClient().toString(), words[1]);
                                 udpClientHandler.sendUDPPacket(packettt, InetAddress.getByName(ip),8888);
-                            }
                         }
                         n_nodes--;
                     }
-
                 }
 
             }
@@ -118,7 +100,27 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private String[] handleGetResponse(Packet pPacket) {
+    private static Map<String, List<Integer>> getStringListMap(int n_blocks, int n_nodes, String[] ips) {
+        int blocksPerNode = n_blocks / n_nodes;
+        int remainder = n_blocks % n_nodes;
+
+        Map<String, List<Integer>> blockDistributionMap = new HashMap<>();
+
+        int blockCounter = 0;
+        for (int i = 0; i < n_nodes; i++) {
+            int blocksAssigned = blocksPerNode + (i < remainder ? 1 : 0);
+
+            List<Integer> nodeBlocks = new ArrayList<>();
+            for (int j = 0; j < blocksAssigned; j++) {
+                nodeBlocks.add(blockCounter++);
+            }
+
+            blockDistributionMap.put(ips[i], nodeBlocks);
+        }
+        return blockDistributionMap;
+    }
+
+    private String[] handleGetResponse(Packet pPacket, ClientInfo node) {
         String content = pPacket.getContent().replaceAll("\\s+", ""); // Remove espaços em branco
         String[] ips = content.split(",");
 
@@ -128,27 +130,23 @@ public class ClientHandler implements Runnable {
             if (ips[i].startsWith("/")) {
                 ips[i] = ips[i].substring(1);
             }
+
+            if (ips[i].equals(node.getIpClient().toString().substring(1))) {
+                ips = removeElement(ips, i);
+                i--;
+            }
         }
 
         return ips;
     }
 
-    public static FileInfo createFileInfo(String fileName, String filePath) {
-        Path file = Paths.get(filePath);
-
-        if (Files.exists(file)) {
-            try {
-                long fileLength = Files.size(file);
-                return new FileInfo(fileName, fileLength, filePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("O arquivo não foi encontrado no caminho especificado.");
-        }
-
-        return null;
+    private String[] removeElement(String[] array, int index) {
+        String[] newArray = new String[array.length - 1];
+        System.arraycopy(array, 0, newArray, 0, index);
+        System.arraycopy(array, index + 1, newArray, index, array.length - index - 1);
+        return newArray;
     }
+    
 
     public static byte[] serializeBlockList(List<Integer> blockList) {
         ByteBuffer buffer = ByteBuffer.allocate(blockList.size() * 4);

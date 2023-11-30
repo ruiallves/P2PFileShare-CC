@@ -16,6 +16,7 @@ public class FileFolder {
 
             File[] arquivos = pasta.listFiles();
 
+            assert arquivos != null;
             for (File arquivo : arquivos) {
                 if (arquivo.isFile()) {
                     String nomeDoArquivo = arquivo.getName();

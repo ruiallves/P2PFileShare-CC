@@ -8,9 +8,8 @@ import java.util.Arrays;
 
 public class Fstp {
 
-    public static final int HEADER_SIZE = 48;
-    public static final int BUFFER_SIZE = 304; // 256(tamanho máximo) + 44(header)
-    public static final int PAYLOAD_SIZE = BUFFER_SIZE - HEADER_SIZE;
+    public static final int HEADER_SIZE = 28;
+    public static final int BUFFER_SIZE = 284; // 256(tamanho máximo) + 28(header)
     private byte[] data;
     private byte[] header;
 
@@ -84,40 +83,31 @@ public class Fstp {
 
     public void setFileName(String fileName) {
         byte[] fileNameBytes = fileName.getBytes(StandardCharsets.UTF_8);
-        int i = 28;
+        int i = 12;
         for (byte b : fileNameBytes) {
             this.header[i++] = b;
         }
     }
 
     public String getFileName() {
-        byte[] fileNameBytes = Arrays.copyOfRange(this.header, 28, 44);
+        byte[] fileNameBytes = Arrays.copyOfRange(this.header, 12, 24);
         return new String(fileNameBytes, StandardCharsets.UTF_8).trim();
     }
 
     public void setDataSize(int dataSize) {
         byte[] chunkIdBytes = ByteBuffer.allocate(4).putInt(dataSize).array();
-        int i = 24;
+        int i = 8;
         for (byte b : chunkIdBytes) {
             this.header[i++] = b;
         }
     }
 
     public int getDataSize() {
-        return ByteBuffer.wrap(this.header, 24, 4).getInt();
-    }
-
-    public void setData(byte[] d, int size) {
-        if (size >= 0)
-            System.arraycopy(d, 0, this.data, 0, size);
+        return ByteBuffer.wrap(this.header, 8, 4).getInt();
     }
 
     public byte[] getData() {
         return Arrays.copyOfRange(this.data, 0, this.getDataSize());
-    }
-
-    public byte[] getHeader() {
-        return Arrays.copyOfRange(this.header, 0, HEADER_SIZE);
     }
 
     public byte[] getPacket() {
@@ -126,14 +116,10 @@ public class Fstp {
         System.arraycopy(this.data, 0, res, this.header.length, this.data.length);
         return res;
     }
-
-    public int getPacketSize() {
-        return this.header.length + this.data.length;
-    }
     public void setTotalBlocks(int totalBlocks) {
         if (totalBlocks >= 0) {
             byte[] totalBlocksBytes = ByteBuffer.allocate(4).putInt(totalBlocks).array();
-            int i = 44;
+            int i = 24;
             for (byte b : totalBlocksBytes) {
                 this.header[i++] = b;
             }
@@ -141,8 +127,8 @@ public class Fstp {
     }
 
     public int getTotalBlocks() {
-        if (this.header.length >= 44) {
-            return ByteBuffer.wrap(this.header, 44, 4).getInt();
+        if (this.header.length >= 24) {
+            return ByteBuffer.wrap(this.header, 24, 4).getInt();
         } else {
             return -1;
         }

@@ -43,7 +43,6 @@ public class UDPClientHandler implements Runnable{
                 while (true) {
                     udpSocket.receive(packet);
                     Fstp fstpPacket = new Fstp(packet.getData());
-                    //fstpPacket.printFsChunk();
                     processUDPPacket(fstpPacket);
                 }
             } catch (IOException e) {
@@ -59,8 +58,6 @@ public class UDPClientHandler implements Runnable{
             case 1:
                 String fileName = fstpPacket.getFileName();
                 String filePath = node.getPath() + "/" + fileName;
-                System.out.println(fileName);
-                System.out.println(filePath);
                 List<Integer> receivedBlocks = deserializeBlockList(fstpPacket.getData());
                 FileInfo file = createFileInfo(fileName, filePath);
 
@@ -71,6 +68,7 @@ public class UDPClientHandler implements Runnable{
                         byte[] blockContent = block.getContent().getBytes();
                         Fstp responsePacket = new Fstp(blockContent, 2, node.getIpClient().toString(), String.valueOf(blockNumber), file.getBlocks().size());
                         sendUDPPacket(responsePacket, InetAddress.getByName(nodeIp), 8888);
+                        System.out.println("Enviado Block Number: " + blockNumber + " ao node: " + InetAddress.getByName(nodeIp) + ".");
                     }
                 } catch (IOException | IndexOutOfBoundsException e) {
                     System.out.println("Erro ao ler o arquivo ou enviar os blocos: " + e.getMessage());
@@ -95,6 +93,9 @@ public class UDPClientHandler implements Runnable{
                     }
                 } catch (IOException e) {
                     System.out.println("Erro ao salvar o bloco ou montar o arquivo: " + e.getMessage());
+                }
+                finally {
+                    contador = 1;
                 }
                 break;
 
@@ -204,10 +205,6 @@ public class UDPClientHandler implements Runnable{
         }
 
         tempDir.delete();
-    }
-
-    public DatagramSocket getDatagramPacket(){
-            return this.udpSocket;
     }
 
 }

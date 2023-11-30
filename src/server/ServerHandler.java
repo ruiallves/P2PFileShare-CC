@@ -42,6 +42,7 @@ public class ServerHandler implements Runnable{
                         pPacket.setType(Packet.Type.RESPONSE);
                         pPacket.setContent("FSNode registado com sucesso!");
                         out.println(pPacket.toString());
+                        System.out.println("RECEIVED_PACKET_QUERY: " + pPacket.getQuery());
                         break;
 
                     case Packet.Query.UPDATE:
@@ -49,12 +50,14 @@ public class ServerHandler implements Runnable{
                         pPacket.setType(Packet.Type.RESPONSE);
                         pPacket.setContent("FSTracker atualizado com sucesso!");
                         out.println(pPacket.toString());
+                        System.out.println("RECEIVED_PACKET_QUERY: " + pPacket.getQuery());
                         break;
 
                     case Packet.Query.GET, Packet.Query.FILE_INFO:
                         packetManager.manager(pPacket);
                         pPacket.setType(Packet.Type.RESPONSE);
                         out.println(pPacket.toString());
+                        System.out.println("RECEIVED_PACKET_QUERY: " + pPacket.getQuery());
                         break;
                 }
             }

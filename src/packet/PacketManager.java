@@ -30,7 +30,6 @@ public class PacketManager {
                 case Packet.Query.UPDATE:
                     ClientInfo nodeUPD = new ClientInfo(pPacket.getContent());
                     dataLayer.updateFilesDB(nodeUPD);
-                    dataLayer.imprimirConteudo();
                     break;
 
                 case Packet.Query.GET:

@@ -24,14 +24,13 @@ public class UDPClientHandler implements Runnable{
         private PacketManager packetManager;
         private int port;
         private String fileName;
-        private int contador; //USADO EM "sendUDPPacket" PARA GUARDARMOS O NOME DO FICHEIRO
+        private int blocks;
 
         public UDPClientHandler(ClientInfo node, int port, PacketManager packetManager) throws SocketException {
             this.udpSocket = new DatagramSocket(port);
             this.node = node;
             this.packetManager = packetManager;
             this.port = port;
-            this.contador = 1;
         }
 
         @Override
@@ -39,7 +38,6 @@ public class UDPClientHandler implements Runnable{
             try {
                 byte[] buffer = new byte[Fstp.BUFFER_SIZE];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
                 while (true) {
                     udpSocket.receive(packet);
                     Fstp fstpPacket = new Fstp(packet.getData());
@@ -66,7 +64,7 @@ public class UDPClientHandler implements Runnable{
                         assert file != null;
                         FileBlock block = file.getBlocks().get(blockNumber);
                         byte[] blockContent = block.getContent().getBytes();
-                        Fstp responsePacket = new Fstp(blockContent, 2, node.getIpClient().toString(), String.valueOf(blockNumber), file.getBlocks().size());
+                        Fstp responsePacket = new Fstp(blockContent, 2, node.getIpClient().toString(), fileName, blockNumber);
                         sendUDPPacket(responsePacket, InetAddress.getByName(nodeIp), 8888);
                         System.out.println("Enviado Block Number: " + blockNumber + " ao node: " + InetAddress.getByName(nodeIp) + ".");
                     }
@@ -77,25 +75,21 @@ public class UDPClientHandler implements Runnable{
 
             case 2:
                 byte[] fileContent = fstpPacket.getData();
-                String fileNames = getFileName();
-                int blockNumber = Integer.parseInt(fstpPacket.getFileName()); // AQUI VEM O BLOCKNUMBER E NÃO O FILE NAME
-                String savePath = node.getPath() + "/" + fileNames;
-                int n_blocks = fstpPacket.getTotalBlocks();
+                int blockNumber = fstpPacket.getTotalBlocks();
 
                 try {
-                    storeBlock(fileContent, fileNames, blockNumber);
+                    storeBlock(fileContent, blockNumber);
                     File tempDir = new File(node.getPath() + "/temp_blocks");
                     File[] files = tempDir.listFiles();
 
-                    if (n_blocks == files.length) {
+                    if (blocks == files.length) {
+                        String fileNames = fstpPacket.getFileName();
+                        String savePath = node.getPath() + "/" + fileNames;
                         assembleFile(fileNames, savePath);
                         System.out.println("Arquivo completo recebido e salvo em: " + savePath);
                     }
                 } catch (IOException e) {
                     System.out.println("Erro ao salvar o bloco ou montar o arquivo: " + e.getMessage());
-                }
-                finally {
-                    contador = 1;
                 }
                 break;
 
@@ -104,7 +98,7 @@ public class UDPClientHandler implements Runnable{
         }
     }
 
-    private void storeBlock(byte[] blockContent, String fileName, int blockNumber) throws IOException {
+    private void storeBlock(byte[] blockContent, int blockNumber) throws IOException {
         String tempBlocksPath = node.getPath() + "/temp_blocks/";
         File tempBlocksDir = new File(tempBlocksPath);
 
@@ -112,15 +106,10 @@ public class UDPClientHandler implements Runnable{
             tempBlocksDir.mkdirs();
         }
 
-        String blockPath = tempBlocksPath + blockNumber + "_" + fileName;
+        String blockPath = tempBlocksPath + blockNumber;
         writeFileBytes(blockPath, blockContent);
     }
 
-
-    private byte[] readFileBytes(String filePath) throws IOException {
-        Path path = Paths.get(filePath);
-        return Files.readAllBytes(path);
-    }
     private void writeFileBytes(String filePath, byte[] fileContent) throws IOException {
         Path path = Paths.get(filePath);
         Files.write(path, fileContent);
@@ -130,10 +119,7 @@ public class UDPClientHandler implements Runnable{
                 byte[] packetData = fstpPacket.getPacket();
                 DatagramPacket packet = new DatagramPacket(packetData, packetData.length, address, port);
                 udpSocket.send(packet);
-                if (contador > 0){
-                    this.fileName = fstpPacket.getFileName();
-                    contador--;
-                }
+                this.blocks = fstpPacket.getTotalBlocks();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -174,10 +160,6 @@ public class UDPClientHandler implements Runnable{
         return blockList;
     }
 
-    public String getFileName(){
-            return this.fileName;
-    }
-
     private void assembleFile(String fileName, String savePath) throws IOException {
         File tempDir = new File(node.getPath() + "/temp_blocks");
         File[] files = tempDir.listFiles();
@@ -185,8 +167,7 @@ public class UDPClientHandler implements Runnable{
         List<File> orderedBlocks = new ArrayList<>();
 
         for (int i = 0; i < files.length; i++) {
-            String blockFileName = i + "_" + fileName;
-            File blockFile = new File(tempDir, blockFileName);
+            File blockFile = new File(tempDir, String.valueOf(i));
             orderedBlocks.add(blockFile);
         }
 
@@ -206,5 +187,4 @@ public class UDPClientHandler implements Runnable{
 
         tempDir.delete();
     }
-
 }

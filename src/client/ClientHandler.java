@@ -76,6 +76,7 @@ public class ClientHandler implements Runnable {
 
                     Packet get = new Packet(Packet.Type.REQUEST, Packet.Query.FILE_INFO, words[1]);
                     out.println(get.toString());
+
                     String packetMessage = in.readLine();
                     Packet packet = new Packet(packetMessage);
                     long filesize = Long.parseLong(packet.getContent());
@@ -87,7 +88,7 @@ public class ClientHandler implements Runnable {
 
                     while(n_nodes > 0){
                         for(String ip : ips){
-                                Fstp packettt = new Fstp(serializeBlockList(blockDistributionMap.get(ip)),1, node.getIpClient().toString(), words[1]);
+                                Fstp packettt = new Fstp(serializeBlockList(blockDistributionMap.get(ip)),1, node.getIpClient().toString(), words[1], n_blocks);
                                 udpClientHandler.sendUDPPacket(packettt, InetAddress.getByName(ip),8888);
                                 n_nodes--;
                         }
@@ -132,10 +133,10 @@ public class ClientHandler implements Runnable {
                 ips[i] = ips[i].substring(1);
             }
 
-            if (ips[i].equals(node.getIpClient().toString().substring(1))) {
-                ips = removeElement(ips, i);
-                i--;
-            }
+            //if (ips[i].equals(node.getIpClient().toString().substring(1))) {
+            //    ips = removeElement(ips, i);
+            //    i--;
+            //}
         }
 
         return ips;

@@ -23,8 +23,6 @@ public class UDPClientHandler implements Runnable{
         private ClientInfo node;
         private PacketManager packetManager;
         private int port;
-        private String fileName;
-        private int blocks;
         private Fstp packet;
 
         public UDPClientHandler(ClientInfo node, int port, PacketManager packetManager) throws SocketException {
@@ -60,6 +58,7 @@ public class UDPClientHandler implements Runnable{
                 String filePath = node.getPath() + "/" + fileName;
                 List<Integer> receivedBlocks = deserializeBlockList(fstpPacket.getData());
                 FileInfo file = createFileInfo(fileName, filePath);
+                int totalBlocks = fstpPacket.getTotalBlocks();
 
                 try {
                     for (int blockNumber : receivedBlocks) {
@@ -71,8 +70,9 @@ public class UDPClientHandler implements Runnable{
                         boolean ackRecebido = false;
 
                         while(!ackRecebido && retries <= 3){
-                            Fstp responsePacket = new Fstp(blockContent, 2, node.getIpClient().toString(), fileName, blockNumber);
+                            Fstp responsePacket = new Fstp(blockContent, 2, node.getIpClient().toString(), fileName, blockNumber, totalBlocks);
                             sendUDPPacket(responsePacket, InetAddress.getByName(nodeIp), 8888);
+
                             if(esperaACK()){
                                 ackRecebido = true;
                             }
@@ -98,15 +98,16 @@ public class UDPClientHandler implements Runnable{
 
             case 2:
                 byte[] fileContent = fstpPacket.getData();
-                int blockNumber = fstpPacket.getTotalBlocks();
-
+                int blockNumber = fstpPacket.getBlockNumber();
                 try {
                     storeBlock(fileContent, blockNumber);
                     File tempDir = new File(node.getPath() + "/temp_blocks");
                     File[] files = tempDir.listFiles();
+
                     sendAckToSender(fstpPacket.getClientIp(), 3);
 
-                    if (blocks == files.length) {
+
+                    if (fstpPacket.getTotalBlocks() == files.length) {
                         String fileNames = fstpPacket.getFileName();
                         String savePath = node.getPath() + "/" + fileNames;
                         assembleFile(fileNames, savePath);
@@ -127,7 +128,7 @@ public class UDPClientHandler implements Runnable{
 
     private void sendAckToSender(String clientIp, int ackType) {
         try {
-            Fstp ackPacket = new Fstp(new byte[0], ackType, node.getIpClient().toString(), "", blocks);
+            Fstp ackPacket = new Fstp(new byte[0], ackType, node.getIpClient().toString(), "");
             sendUDPPacket(ackPacket, InetAddress.getByName(clientIp), 8888);
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -169,7 +170,6 @@ public class UDPClientHandler implements Runnable{
                 byte[] packetData = fstpPacket.getPacket();
                 DatagramPacket packet = new DatagramPacket(packetData, packetData.length, address, port);
                 udpSocket.send(packet);
-                this.blocks = fstpPacket.getTotalBlocks();
             } catch (IOException e) {
                 e.printStackTrace();
             }

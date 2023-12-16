@@ -88,7 +88,7 @@ public class ClientHandler implements Runnable {
 
                     while(n_nodes > 0){
                         for(String ip : ips){
-                                Fstp packettt = new Fstp(serializeBlockList(blockDistributionMap.get(ip)),1, node.getIpClient().toString(), words[1], n_blocks);
+                                Fstp packettt = new Fstp(serializeBlockList(blockDistributionMap.get(ip)),1, node.getIpClient().toString(), words[1], n_blocks ,n_blocks);
                                 udpClientHandler.sendUDPPacket(packettt, InetAddress.getByName(ip),8888);
                                 n_nodes--;
                         }

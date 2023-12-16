@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 public class Fstp {
 
-    public static final int HEADER_SIZE = 28;
-    public static final int BUFFER_SIZE = 284; // 256(tamanho máximo) + 28(header)
+    public static final int HEADER_SIZE = 32;
+    public static final int BUFFER_SIZE = 288; // 256(tamanho máximo) + 32(header)
     private byte[] data;
     private byte[] header;
 
@@ -28,13 +28,14 @@ public class Fstp {
     // 2-> BLOCK_SEND
     // 3-> BLOCK_CONFIRMATION
     // 4-> BLOCK_RESEND
-    public Fstp(byte[] data, int type, String clientId, String fileName, int totalBlocks) {
-        this.data = data;
+    public Fstp(byte[] fileContent, int type, String clientId, String fileName, int blockNumber, int totalBlocks) {
+        this.data = fileContent;
         this.header = new byte[HEADER_SIZE];
         setType(type);
         setClientIp(clientId);
-        setDataSize(data.length);
+        setDataSize(fileContent.length);
         setFileName(fileName);
+        setBlockNumber(blockNumber);
         setTotalBlocks(totalBlocks);
     }
 
@@ -121,7 +122,7 @@ public class Fstp {
     public void setTotalBlocks(int totalBlocks) {
         if (totalBlocks >= 0) {
             byte[] totalBlocksBytes = ByteBuffer.allocate(4).putInt(totalBlocks).array();
-            int i = 24;
+            int i = 28;
             for (byte b : totalBlocksBytes) {
                 this.header[i++] = b;
             }
@@ -129,12 +130,29 @@ public class Fstp {
     }
 
     public int getTotalBlocks() {
-        if (this.header.length >= 24) {
+        if (this.header.length >= 28) {
+            return ByteBuffer.wrap(this.header, 28, 4).getInt();
+        } else {
+            return -1;
+        }
+    }
+
+    public void setBlockNumber(int blockNumber) {
+        byte[] blockNumberBytes = ByteBuffer.allocate(4).putInt(blockNumber).array();
+        int i = 24;
+        for (byte b : blockNumberBytes) {
+            this.header[i++] = b;
+        }
+    }
+
+    public int getBlockNumber() {
+        if (this.header.length >= 28) {
             return ByteBuffer.wrap(this.header, 24, 4).getInt();
         } else {
             return -1;
         }
     }
+
 
     public void printFsChunk() {
         System.out.println("    Type " + this.getType());

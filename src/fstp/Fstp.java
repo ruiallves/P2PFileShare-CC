@@ -26,6 +26,8 @@ public class Fstp {
     //TYPES:
     // 1-> BLOCK_REQUEST
     // 2-> BLOCK_SEND
+    // 3-> BLOCK_CONFIRMATION
+    // 4-> BLOCK_RESEND
     public Fstp(byte[] data, int type, String clientId, String fileName, int totalBlocks) {
         this.data = data;
         this.header = new byte[HEADER_SIZE];

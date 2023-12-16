@@ -25,6 +25,7 @@ public class UDPClientHandler implements Runnable{
         private int port;
         private String fileName;
         private int blocks;
+        private Fstp packet;
 
         public UDPClientHandler(ClientInfo node, int port, PacketManager packetManager) throws SocketException {
             this.udpSocket = new DatagramSocket(port);
@@ -41,6 +42,7 @@ public class UDPClientHandler implements Runnable{
                 while (true) {
                     udpSocket.receive(packet);
                     Fstp fstpPacket = new Fstp(packet.getData());
+                    this.packet = fstpPacket;
                     processUDPPacket(fstpPacket);
                 }
             } catch (IOException e) {
@@ -64,9 +66,30 @@ public class UDPClientHandler implements Runnable{
                         assert file != null;
                         FileBlock block = file.getBlocks().get(blockNumber);
                         byte[] blockContent = block.getContent().getBytes();
-                        Fstp responsePacket = new Fstp(blockContent, 2, node.getIpClient().toString(), fileName, blockNumber);
-                        sendUDPPacket(responsePacket, InetAddress.getByName(nodeIp), 8888);
-                        System.out.println("Enviado Block Number: " + blockNumber + " ao node: " + InetAddress.getByName(nodeIp) + ".");
+
+                        int retries = 1;
+                        boolean ackRecebido = false;
+
+                        while(!ackRecebido && retries <= 3){
+                            Fstp responsePacket = new Fstp(blockContent, 2, node.getIpClient().toString(), fileName, blockNumber);
+                            sendUDPPacket(responsePacket, InetAddress.getByName(nodeIp), 8888);
+                            if(esperaACK()){
+                                ackRecebido = true;
+                            }
+                            else {
+                                System.out.println("Falha ao enviar o bloco " + blockNumber + " para o node: " + InetAddress.getByName(nodeIp) + ".");
+                                System.out.println("A tentar novamente...");
+                                retries++;
+                            }
+                        }
+
+                        if (!ackRecebido) {
+                            System.out.println("Limite de tentativas alcançado. Falha ao enviar o bloco " + blockNumber + " para o node: " + InetAddress.getByName(nodeIp) + ".");
+                        }
+                        else{
+                            System.out.println("Enviado Block Number: " + blockNumber + " ao node: " + InetAddress.getByName(nodeIp) + ".");
+                        }
+
                     }
                 } catch (IOException | IndexOutOfBoundsException e) {
                     System.out.println("Erro ao ler o arquivo ou enviar os blocos: " + e.getMessage());
@@ -81,6 +104,7 @@ public class UDPClientHandler implements Runnable{
                     storeBlock(fileContent, blockNumber);
                     File tempDir = new File(node.getPath() + "/temp_blocks");
                     File[] files = tempDir.listFiles();
+                    sendAckToSender(fstpPacket.getClientIp(), 3);
 
                     if (blocks == files.length) {
                         String fileNames = fstpPacket.getFileName();
@@ -93,9 +117,35 @@ public class UDPClientHandler implements Runnable{
                 }
                 break;
 
+            case 3:
+                break;
+
             default:
                 System.out.println("Tipo de pacote desconhecido: " + type);
         }
+    }
+
+    private void sendAckToSender(String clientIp, int ackType) {
+        try {
+            Fstp ackPacket = new Fstp(new byte[0], ackType, node.getIpClient().toString(), "", blocks);
+            sendUDPPacket(ackPacket, InetAddress.getByName(clientIp), 8888);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean esperaACK(){
+        long startTime = System.currentTimeMillis();
+        long timeout = 5000;
+
+        while (System.currentTimeMillis() - startTime < timeout) {
+            Fstp ackPacket = packet;
+            if (ackPacket != null) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void storeBlock(byte[] blockContent, int blockNumber) throws IOException {

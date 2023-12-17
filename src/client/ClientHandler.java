@@ -133,10 +133,10 @@ public class ClientHandler implements Runnable {
                 ips[i] = ips[i].substring(1);
             }
 
-            //if (ips[i].equals(node.getIpClient().toString().substring(1))) {
-            //    ips = removeElement(ips, i);
-            //    i--;
-            //}
+            if (ips[i].equals(node.getIpClient().toString().substring(1))) {
+                ips = removeElement(ips, i);
+                i--;
+            }
         }
 
         return ips;

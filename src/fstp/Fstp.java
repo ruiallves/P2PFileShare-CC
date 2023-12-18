@@ -13,10 +13,6 @@ public class Fstp {
     private byte[] data;
     private byte[] header;
 
-    public Fstp() {
-        this.data = new byte[BUFFER_SIZE];
-    }
-
     public Fstp(byte[] packet) {
         this.header = Arrays.copyOfRange(packet, 0, HEADER_SIZE);
         int dataSize = getDataSize();
@@ -27,7 +23,6 @@ public class Fstp {
     // 1-> BLOCK_REQUEST
     // 2-> BLOCK_SEND
     // 3-> BLOCK_CONFIRMATION
-    // 4-> BLOCK_RESEND
     public Fstp(byte[] fileContent, int type, String clientId, String fileName, int blockNumber, int totalBlocks) {
         this.data = fileContent;
         this.header = new byte[HEADER_SIZE];
@@ -37,15 +32,6 @@ public class Fstp {
         setFileName(fileName);
         setBlockNumber(blockNumber);
         setTotalBlocks(totalBlocks);
-    }
-
-    public Fstp(byte[] data, int type, String clientId, String fileName) {
-        this.data = data;
-        this.header = new byte[HEADER_SIZE];
-        setType(type);
-        setClientIp(clientId);
-        setDataSize(data.length);
-        setFileName(fileName);
     }
 
     public void setType(int type) {
@@ -157,8 +143,10 @@ public class Fstp {
     public void printFsChunk() {
         System.out.println("    Type " + this.getType());
         System.out.println("    Client Id " + this.getClientIp());
-        System.out.println("    FileName" + this.getFileName());
+        System.out.println("    FileName " + this.getFileName());
         System.out.println("    Size " + this.getDataSize());
+        System.out.println("    Block Number " + this.getBlockNumber());
+        System.out.println("    Total Blocks " + this.getTotalBlocks());
         System.out.println("    Data " + new String(this.getData()));
     }
 

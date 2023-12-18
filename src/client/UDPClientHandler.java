@@ -4,7 +4,6 @@ import P2PFileShare_CC.src.files.FileBlock;
 import P2PFileShare_CC.src.files.FileInfo;
 import P2PFileShare_CC.src.fstp.Fstp;
 import P2PFileShare_CC.src.packet.PacketManager;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
@@ -19,34 +18,41 @@ import java.util.List;
 
 
 public class UDPClientHandler implements Runnable{
-        private DatagramSocket udpSocket;
-        private ClientInfo node;
-        private PacketManager packetManager;
-        private int port;
-        private String fileName;
-        private int blocks;
+    private DatagramSocket udpSocket;
+    private ClientInfo node;
+    private PacketManager packetManager;
+    private int port;
+    private Fstp packet;
 
-        public UDPClientHandler(ClientInfo node, int port, PacketManager packetManager) throws SocketException {
-            this.udpSocket = new DatagramSocket(port);
-            this.node = node;
-            this.packetManager = packetManager;
-            this.port = port;
-        }
+    public UDPClientHandler(ClientInfo node, int port, PacketManager packetManager) throws SocketException {
+        this.udpSocket = new DatagramSocket(port);
+        this.node = node;
+        this.packetManager = packetManager;
+        this.port = port;
+    }
 
-        @Override
-        public void run() {
-            try {
+    @Override
+    public void run() {
+        try {
+            while (true) {
                 byte[] buffer = new byte[Fstp.BUFFER_SIZE];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                while (true) {
+                try {
                     udpSocket.receive(packet);
                     Fstp fstpPacket = new Fstp(packet.getData());
-                    processUDPPacket(fstpPacket);
+                    this.packet = fstpPacket;
+
+                    if (fstpPacket.getType() == 1 || fstpPacket.getType() == 2) {
+                        processUDPPacket(fstpPacket);
+                    }
+                } catch (SocketTimeoutException e) {
+                    System.out.println("Tempo limite atingido. Nenhum pacote recebido.");
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
 
     private void processUDPPacket(Fstp fstpPacket) throws UnknownHostException {
         int type = fstpPacket.getType();
@@ -58,15 +64,40 @@ public class UDPClientHandler implements Runnable{
                 String filePath = node.getPath() + "/" + fileName;
                 List<Integer> receivedBlocks = deserializeBlockList(fstpPacket.getData());
                 FileInfo file = createFileInfo(fileName, filePath);
+                int totalBlocks = fstpPacket.getTotalBlocks();
 
                 try {
                     for (int blockNumber : receivedBlocks) {
                         assert file != null;
                         FileBlock block = file.getBlocks().get(blockNumber);
                         byte[] blockContent = block.getContent().getBytes();
-                        Fstp responsePacket = new Fstp(blockContent, 2, node.getIpClient().toString(), fileName, blockNumber);
-                        sendUDPPacket(responsePacket, InetAddress.getByName(nodeIp), 8888);
-                        System.out.println("Enviado Block Number: " + blockNumber + " ao node: " + InetAddress.getByName(nodeIp) + ".");
+
+                        int retries = 1;
+                        boolean ackRecebido = false;
+
+                        while(!ackRecebido && retries <= 3){
+                            Fstp responsePacket = new Fstp(blockContent, 2, node.getIpClient().toString(), fileName, blockNumber, totalBlocks);
+                            sendUDPPacket(responsePacket, InetAddress.getByName(nodeIp), 8888);
+
+                            if(esperaACK()){
+                                ackRecebido = true;
+                            }
+
+                            else {
+                                System.out.println("Falha ao enviar o bloco " + blockNumber + " para o node: " + InetAddress.getByName(nodeIp) + ".");
+                                System.out.println("Retransmitindo...");
+                                retries++;
+                            }
+
+                        }
+
+                        if (!ackRecebido) {
+                            System.out.println("Limite de tentativas alcançado. Falha ao enviar o bloco " + blockNumber + " para o node: " + InetAddress.getByName(nodeIp) + ".");
+                        }
+                        else{
+                            System.out.println("Enviado Block Number: " + blockNumber + " ao node: " + InetAddress.getByName(nodeIp) + ".");
+                        }
+
                     }
                 } catch (IOException | IndexOutOfBoundsException e) {
                     System.out.println("Erro ao ler o arquivo ou enviar os blocos: " + e.getMessage());
@@ -75,14 +106,17 @@ public class UDPClientHandler implements Runnable{
 
             case 2:
                 byte[] fileContent = fstpPacket.getData();
-                int blockNumber = fstpPacket.getTotalBlocks();
+                int blockNumber = fstpPacket.getBlockNumber();
 
                 try {
                     storeBlock(fileContent, blockNumber);
                     File tempDir = new File(node.getPath() + "/temp_blocks");
                     File[] files = tempDir.listFiles();
 
-                    if (blocks == files.length) {
+                    Fstp ackPacket = new Fstp(new byte[0], 3, node.getIpClient().toString(), packet.getFileName(), packet.getBlockNumber(), packet.getTotalBlocks());
+                    sendUDPPacket(ackPacket, InetAddress.getByName(nodeIp), 8888);
+
+                    if (fstpPacket.getTotalBlocks() == files.length) {
                         String fileNames = fstpPacket.getFileName();
                         String savePath = node.getPath() + "/" + fileNames;
                         assembleFile(fileNames, savePath);
@@ -97,6 +131,32 @@ public class UDPClientHandler implements Runnable{
                 System.out.println("Tipo de pacote desconhecido: " + type);
         }
     }
+
+    private boolean esperaACK() {
+        long startTime = System.currentTimeMillis();
+
+        while (System.currentTimeMillis() - startTime < 5000) {
+            try {
+                byte[] buffer = new byte[Fstp.BUFFER_SIZE];
+                DatagramPacket ackPacket = new DatagramPacket(buffer, buffer.length);
+                udpSocket.setSoTimeout(5000);
+                udpSocket.receive(ackPacket);
+                Fstp ackFstp = new Fstp(ackPacket.getData());
+                int ackType = ackFstp.getType();
+                if (ackType == 3) {
+                    udpSocket.setSoTimeout(0);
+                    return true;
+                }
+
+            } catch (SocketTimeoutException ignored) {
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+
 
     private void storeBlock(byte[] blockContent, int blockNumber) throws IOException {
         String tempBlocksPath = node.getPath() + "/temp_blocks/";
@@ -115,15 +175,14 @@ public class UDPClientHandler implements Runnable{
         Files.write(path, fileContent);
     }
     public void sendUDPPacket(Fstp fstpPacket, InetAddress address, int port) {
-            try {
-                byte[] packetData = fstpPacket.getPacket();
-                DatagramPacket packet = new DatagramPacket(packetData, packetData.length, address, port);
-                udpSocket.send(packet);
-                this.blocks = fstpPacket.getTotalBlocks();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            byte[] packetData = fstpPacket.getPacket();
+            DatagramPacket packet = new DatagramPacket(packetData, packetData.length, address, port);
+            udpSocket.send(packet);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
 
     public static String removeLeadingSlash(String input) {
         if (input.startsWith("/")) {

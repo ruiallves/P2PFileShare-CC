@@ -32,7 +32,6 @@ public class ServerHandler implements Runnable{
             String message;
 
             while((message = in.readLine())!=null){
-                String[] words = message.split(" ");
                 pPacket = new Packet(message);
 
                 switch(pPacket.getQuery()){
@@ -57,7 +56,7 @@ public class ServerHandler implements Runnable{
                         packetManager.manager(pPacket);
                         pPacket.setType(Packet.Type.RESPONSE);
                         out.println(pPacket.toString());
-                        System.out.println("RECEIVED_PACKET_QUERY: " + pPacket.getQuery());
+                        System.out.println("RECEIVED_PACKET_QUERY: " + pPacket.getQuery()); 
                         break;
                 }
             }

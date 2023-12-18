@@ -72,7 +72,7 @@ public class ClientHandler implements Runnable {
                 packetManager.manager(pPacket);
 
                 if (pPacket.getType().equals(Packet.Type.RESPONSE) && pPacket.getQuery().equals(Packet.Query.GET)) {
-                    String[] ips = handleGetResponse(pPacket,node);
+                    String[] ips = listaIPS(pPacket,node);
 
                     Packet get = new Packet(Packet.Type.REQUEST, Packet.Query.FILE_INFO, words[1]);
                     out.println(get.toString());
@@ -84,11 +84,11 @@ public class ClientHandler implements Runnable {
                     int n_blocks = (int) Math.ceil((double) filesize/ 256);
                     int n_nodes = ips.length;
 
-                    Map<String, List<Integer>> blockDistributionMap = getStringListMap(n_blocks, n_nodes, ips);
+                    Map<String, List<Integer>> blocosDistribuidos = atribuirBlocosANodes(n_blocks, n_nodes, ips);
 
                     while(n_nodes > 0){
                         for(String ip : ips){
-                                Fstp packettt = new Fstp(serializeBlockList(blockDistributionMap.get(ip)),1, node.getIpClient().toString(), words[1], n_blocks);
+                                Fstp packettt = new Fstp(serializeBlockList(blocosDistribuidos.get(ip)),1, node.getIpClient().toString(), words[1], n_blocks ,n_blocks);
                                 udpClientHandler.sendUDPPacket(packettt, InetAddress.getByName(ip),8888);
                                 n_nodes--;
                         }
@@ -102,7 +102,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private static Map<String, List<Integer>> getStringListMap(int n_blocks, int n_nodes, String[] ips) {
+    private static Map<String, List<Integer>> atribuirBlocosANodes(int n_blocks, int n_nodes, String[] ips) {
         int blocksPerNode = n_blocks / n_nodes;
         int remainder = n_blocks % n_nodes;
 
@@ -122,8 +122,8 @@ public class ClientHandler implements Runnable {
         return blockDistributionMap;
     }
 
-    private String[] handleGetResponse(Packet pPacket, ClientInfo node) {
-        String content = pPacket.getContent().replaceAll("\\s+", ""); // Remove espaços em branco
+    private String[] listaIPS(Packet pPacket, ClientInfo node) {
+        String content = pPacket.getContent().replaceAll("\\s+", "");
         String[] ips = content.split(",");
 
         for (int i = 0; i < ips.length; i++) {
@@ -133,10 +133,10 @@ public class ClientHandler implements Runnable {
                 ips[i] = ips[i].substring(1);
             }
 
-            //if (ips[i].equals(node.getIpClient().toString().substring(1))) {
-            //    ips = removeElement(ips, i);
-            //    i--;
-            //}
+            if (ips[i].equals(node.getIpClient().toString().substring(1))) {
+                ips = removeElement(ips, i);
+                i--;
+            }
         }
 
         return ips;

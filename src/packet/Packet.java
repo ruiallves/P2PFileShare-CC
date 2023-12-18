@@ -7,23 +7,23 @@ import java.util.UUID;
 
 public class Packet implements Serializable {
 
-    public enum Type {
-        REQUEST,
-        RESPONSE
-    }
+        public enum Type {
+            REQUEST,
+            RESPONSE
+        }
 
-    public enum Query {
-        GET,
-        REGISTER,
-        UPDATE,
-        FILE_INFO;
+        public enum Query {
+            GET,
+            REGISTER,
+            UPDATE,
+            FILE_INFO;
 
-    }
+        }
 
-    private String id;
-    private Type type;
-    private Query query;
-    private String content;
+        private String id;
+        private P2PFileShare_CC.src.packet.Packet.Type type;
+        private P2PFileShare_CC.src.packet.Packet.Query query;
+        private String content;
 
     public Packet(Type type, Query query, String content) {
         this.id = UUID.randomUUID().toString();

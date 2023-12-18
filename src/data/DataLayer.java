@@ -80,20 +80,6 @@ public class DataLayer{
         return nodesWithFile;
     }
 
-    public ClientInfo getClientInfoByFileName(String fileName) {
-        List<Pair<ClientInfo, FileBlock>> occurrences = files.get(fileName);
-
-        if (occurrences != null && !occurrences.isEmpty()) {
-            Pair<ClientInfo, FileBlock> firstOccurrence = occurrences.get(0);
-            return firstOccurrence.getValue0();
-        }
-
-        return null;
-    }
-
-
-
-
     public void imprimirConteudo() {
         System.out.println("Conteúdo da HashMap 'files':");
         imprimirHashMap(files);

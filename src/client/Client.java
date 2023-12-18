@@ -1,12 +1,9 @@
 package P2PFileShare_CC.src.client;
-
 import P2PFileShare_CC.src.files.FileFolder;
 import P2PFileShare_CC.src.packet.PacketManager;
 import P2PFileShare_CC.src.server.Server;
-
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.UUID;
 
 public class Client {

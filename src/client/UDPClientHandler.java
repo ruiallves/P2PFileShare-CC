@@ -85,6 +85,7 @@ public class UDPClientHandler implements Runnable{
 
                             else {
                                 System.out.println("Falha ao enviar o bloco " + blockNumber + " para o node: " + InetAddress.getByName(nodeIp) + ".");
+                                System.out.println("Retransmitindo...");
                                 retries++;
                             }
 
@@ -152,8 +153,6 @@ public class UDPClientHandler implements Runnable{
                 e.printStackTrace();
             }
         }
-
-        System.out.println("Timeout ao aguardar o ACK. Retransmitindo...");
         return false;
     }
 
